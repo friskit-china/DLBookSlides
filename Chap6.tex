@@ -4,7 +4,9 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{bm}
+%\usepackage{coloremoji}
 \newcommand{\supercite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
+\newcommand{\emoji}[1]{\text{\raisebox{-0.2em}{\includegraphics[height=1em]{emojis/#1.png}}}}
 %\usefonttheme[onlymath]{serif}
 
 \begin{document}
@@ -115,6 +117,115 @@
 			\item Modern neural network research $\ne$ perfectly model the brain.
 			\item Feedforward networks $\approx$ function approximation machines.
 			\item Inspired by brain, rather than model a brain.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Understand feedforward networks}
+		\begin{itemize}
+			\item Linear Models
+			\begin{exampleblock}{Linear Regression}
+				\vspace{-2em}
+				\begin{center}
+					$$h_\theta(\bm{x};\theta)=\theta ^T\bm{x}=\theta_0+\theta_1x_1+\theta_2x_2+\dots+\theta_nx_n$$	
+					\vspace{-2em}
+					$$\theta=\mathop{\arg\min}_{\theta}\mathrm{J}(\theta;\bm{X})=\mathop{\arg\min}_{\theta}\frac{1}{2}\sum^{m}_{i=1}(h_\theta(x^{(i)})-y^{(i)})^2$$
+					\vspace{-1em}
+				\end{center}
+			\end{exampleblock}
+			
+			\begin{exampleblock}{Logistic Regression}
+				\vspace{-1.5em}
+				\begin{center}
+					$$h_\theta(\bm{x};\theta)=g(\theta^T\bm{x})=\frac{1}{1+e^{-\theta^T\bm{x}}}$$
+					\vspace{-1.5em}
+					$$g(z)=\frac{1}{1+e^{-z}}$$
+					\vspace{-1.5em}
+				\end{center}
+			\end{exampleblock}
+			
+			\begin{exampleblock}{General Linear Model}
+				$$p(y;\eta)=b(u)\exp(\eta^TT(y)-a(\eta))$$
+			\end{exampleblock}
+		\end{itemize}
+		
+	\end{frame}
+	
+	\begin{frame}{Understand feedforward networks}
+		\begin{itemize}
+			\item Efficiently and reliable
+			\item The model capacity is limited to linear functions.
+			\begin{itemize}
+				\item The model cannot understand the interaction between any two input variables.
+			\end{itemize}
+			\item To extend linear models to represent nonlinear functions of $\bm{x}$, we can apply the linear model not to $\bm{x}$ itself but to a transformed input $\phi(\bm{x})$, where $\phi$ is a \emph{nonlinear transformation}.
+			\item $\phi$ provide a set of features describing $\bm{x}$, or provide a new representation fo $\bm{x}$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Understand feedforward networks}
+		\begin{itemize}
+			\item How to choose $\phi$?
+			\begin{enumerate}
+				\item Use a very generic $\phi$, e.g., infinite-dimensional $\phi$.
+				\begin{itemize}
+					\item High dimension $\Leftrightarrow$ enough capacity to fit the training set.
+					\item High dimension $\Leftrightarrow$ poor generalization capacity.
+					\item More is less: Runge phenomenon; Gibbs phenomenon 
+%					\begin{figure}
+%						\includegraphics[height=10em]{figures/overfitting.eps}
+%						\caption{Overfitting (from: \href{https://commons.wikimedia.org/wiki/File:Overfitting.svg}{Wikepedia})}
+%					\end{figure}
+				\end{itemize}
+				\item Manually engineer $\phi$.
+				\begin{itemize}
+					\item Require human effort for each separate task.
+					\item Need practitioners specializing in different domains.
+				\end{itemize}
+				\item Deep learning.
+				\begin{itemize}
+					\item Strategy: learn a $\phi$.
+					\item $y=f(\bm{x};\bm{\theta},\bm{w})=\phi(\bm{x};\bm{\theta})^T\bm{w}$
+					\item We have parameters $\theta$ to learn $\phi$ from a broad class of functions.
+					\item We have parameters $\bm{w}$ to map from $\phi(\bm{x})$ to the desired output.
+					\item Here in example, $\phi$ defining a hidden layer.
+					\item Deep learning is not simply a \emph{deep} neural network. The $\phi$ is crucial!
+				\end{itemize}
+			\end{enumerate}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Understand feedforward networks}
+		\begin{itemize}
+			\item Why deep learning?
+			\begin{enumerate}
+				\item Parametrize the representation as $\phi(\bm{x};\bm{\theta})$
+				\item We can use optimization algorithm to find the $\bm{\theta}$ that corresponds to a good representation.
+				\item Capture the benefit of first and second approach.
+				\begin{itemize}
+					\item Being highly generic: using a very broad family $\phi(\bm{x};\bm{\theta})$
+					\item Human practitioners can encode their knowledge by designing families $\phi(\bm{x};\bm{\theta})$.
+					\item Human designer only needs to find the right general function family rather than finding precisely the right function.
+				\end{itemize}
+			\end{enumerate}
+			\item The general principle of deep learning is to improve models by learning feature representation.
+			\item Feedforward networks are the application of this principle to learning deterministic mappings from $\bm{x}$ to $\bm{y}$ that lack feedback connections.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Deploy a feedforward network}
+		Training a feedforward network requires the same design decisions for linear model:
+		\begin{itemize}
+			\item Define the form of input and output units.
+			\item Designthe architecture of the network
+			\begin{enumerate}
+				\item How many layers the network should contain
+				\item How these networks should be connected to each other
+				\item How many units should be in each layer.
+			\end{enumerate}
+			\item Choose activation functions for hidden layers.
+			\item Define a cost function
+			\item Choose an optimizer (gradient descent algorithm and its modern generalizations) to train the network.
+			\item Use back-propagation algorithm to compute the gradients of complicated functions.
 		\end{itemize}
 	\end{frame}
 
