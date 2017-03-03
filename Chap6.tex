@@ -473,6 +473,53 @@
 			\end{figure}
 		\end{columns}
 	\end{frame}
+
+	\begin{frame}{For your information: \\ Cross-entropy cost function in logistic regression with 1 unit}
+		\begin{itemize}
+			\item Cross-entropy cost function:
+			$$C=-\frac{1}{n}\sum_x\left[y\ln a+(1-y)\ln (1-a)\right]$$
+			\item The gradient of the cost function $C$:
+			$$\frac{\partial C}{\partial w}=\frac{1}{n}\sum_xx_j(\sigma(z)-y)$$
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Learning Conditional Distributions with Maximum Likelihood}
+		\begin{itemize}
+			\item Most modern neural networks are trained using maximum likelihood.
+			\item This means that the cost function is simply the negative log-likelihood, equivalently described as the cross-entropy between the training data an the model distribution:
+			$$J(\bm{\theta})=-\mathbb{E}_{x,y\sim\hat{p}_{data}}\log p_{model}(\bm{y}|\bm{x})$$
+			\item The specific form of the cost function changes from model to model, depending on the specific form of $\log p_{model}$. For example, if $p_{model}(\bm{y}|\bm{x})=\mathcal{N}(\bm{y};f(\bm{x};\bm{\theta}),\mathit{I})$, the we recover the mean squared error cost,
+			$$J(\theta)=\frac{1}{2}\mathbb{E}_{x,y\sim\hat{p}_{data}}\lVert\bm{y}-f(\bm{x};\bm{\theta})\rVert^2+\text{const}$$
+			\item An advantage of this approach of deriving the cost function from maximum likelihood is that it removes the burden of designing cost functions for each model. Specifying a model $p(\bm{y}|\bm{x})$ automatically determines a cost function $\log p(\bm{y}|\bm{x})$.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Output Units}
+		\begin{itemize}
+			\item Any kind of neural network unit that may be used as an output can also be used as a hidden unit.
+			\item Here, we focus on the use of these units as outputs of the model, but in principle they can be used internally as well.
+			\item Throughout this section, we suppose that the feedforward network provides a set of hidden features defined by $\bm{h}=f(\bm{x};\bm{\theta})$
+			\item The role of the output layers is then to provide some additional transformation from the features to complete the task that the network must perform.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Output Units\\ Linear Units for Gaussian Output Distributions}
+		\begin{itemize}
+			\item One kind of output unit is based on an affine transformation with no nonlinearity. (Linear Units)
+			\item Given features $h$, a layer of linear output units produces a vector $\hat{\bm{y}}=\bm{W}^T\bm{h}+\bm{b}$
+			\item Linear output layers are often used to produce the mean of a conditional Gaussian distribution:
+			$$p(\bm{y}|\bm{x})=\mathcal{N}(\bm{y};\hat{\bm{y}},\mathit{I})$$
+			\item Maximizing the log-likelihood is equivalent to minimizing the mean squared error.
+			\item Because linear units do not saturate, they pose little difficulty for gradient-based optimization algorithms.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Output Units\\ Sigmoid Units for Bernoulli Output Distributions}
+		\begin{itemize}
+			\item Many tasks require predicting the value of a binary variable $y$.
+			\item Classification problems with two classes can be cast in this form.
+		\end{itemize}
+	\end{frame}
 	
 
 
