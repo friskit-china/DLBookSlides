@@ -427,6 +427,53 @@
 		
 		Instead, a \emph{gradient-based optimization algorithm} can find parameters that produce very little error.
 	\end{frame}
+	
+	\begin{frame}{Gradient-Based Learning}
+		\begin{itemize}
+			\item Use \emph{Gradient descent} algorithm to train a neural network.
+			\item There are some difference between linear models we have seen so far and the neural network.
+			\item Nonlinearity $\Longrightarrow$ non-convex loss functions.
+			\item Iterative training, gradient-based optimization: 
+			\item Drive the cost function to a very low value, rather than the linear equation solvers (global convergence guarantee).
+			\item Convex optimization converges starting from any initial parameters (in theory).
+			\item \emph{Stochastic gradient descent} applied to non-convex loss functions has no such convergence guarantee, and is sensitive to the values of the initial parameters.
+			\item \textbf{Initialize all weights to small random values and the biases may be initialized to zero or to small positive values}.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Cost Functions}
+		\begin{itemize}
+			\item The cost functions for neural networks are more or less the same as those for other parametric models, such as linear models.
+			\item Parametric model defines a distribution $p(\bm{y}|\bm{x};\bm{\theta})$ and we simply use the principle of maximum likelihood.
+			\item Cross-entropy cost function.
+			\item The total cost function $=$ primary cost functions $+$ regularization term.
+			\item Regularization term: weight decay.
+			\begin{equation*}
+				J(W,b)=\left[\frac{1}{m}\sum_{i=1}^m(\frac{1}{2}\lVert h_{W,b}(x^{\,(i)})-y^{\,(i)}\rVert^2)\right]+\frac{\lambda}{2}\sum_{l=1}^{n_l-1}\sum_{i=1}^{s_l}\sum_{j=1}^{s_l+1}\left(W_{ji}^{\,(l)}\right)^2
+			\end{equation*}
+			\item More advanced regularization strategies for neural networks will be describe in next chapter.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{For your information: \\ Cross-entropy cost function in logistic regression with 1 unit}
+		\begin{columns}
+			\column{0.6\textwidth}
+			\begin{itemize}
+				\item We can use MSE to be the cost function:
+				$$C=\frac{(y-a)^2}{2} ~\text{where}~ a=\sigma(z) ~\text{and}~ z=WX+b$$
+				\item The gradient of the cost function $C$:
+				$$\frac{\partial C}{\partial w}=(a-y)\sigma'(z)x=a\sigma'(z)$$
+				\item Then update parameters:
+				$$w\leftarrow w-\eta\frac{\partial C}{\partial w}=w-\eta\times a\times \sigma'(z)$$
+			\end{itemize}
+			\column{0.4\textwidth}
+			\begin{figure}
+				\includegraphics[height=8em]{figures/sigmoid.png}
+				\caption{Sigmoid Function (from \href{http://ufldl.stanford.edu/wiki/index.php/File:Sigmoid_Function.png}{UFLDL})}
+			\end{figure}
+		\end{columns}
+	\end{frame}
+	
 
 
 	\begin{frame}[allowframebreaks]{References}
