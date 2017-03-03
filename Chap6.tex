@@ -518,6 +518,20 @@
 		\begin{itemize}
 			\item Many tasks require predicting the value of a binary variable $y$.
 			\item Classification problems with two classes can be cast in this form.
+			\item The neural net needs to predict only $P(y=1|\bm{x})$.
+			\item A valid probability must lie in the interval $[0, 1]$.
+			$$P(y=1|\bm{x})=\max\left\{0,min\left\{1,\bm{w}^T\bm{h}+b\right\}\right\}$$
+			\item But we would not be able to train it very effectively with gradient descent.
+			\item Any time that $\bm{w}^T\bm{h}+b$ strayed outside the unit interval, the gradient of would be 0.
+			\item So we use sigmoid output units combined with maximum likelihood.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Output Units\\ Sigmoid Units for Bernoulli Output Distributions}
+		\begin{itemize}
+			\item A sigmoid output unit is defined by
+			$$\hat{y}=\sigma(\bm{w}^T\bm{h}+b)$$
+			$$\sigma(\bm{h})=\frac{1}{1+e^{-\bm{h}}}$$
 		\end{itemize}
 	\end{frame}
 	
