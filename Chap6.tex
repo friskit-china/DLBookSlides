@@ -6,6 +6,8 @@
 \usepackage{bm}
 \usepackage{booktabs}
 \usepackage{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic}  
 \newcommand{\supercite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
 \newcommand{\emoji}[1]{\text{\raisebox{-0.2em}{\includegraphics[height=1em]{emojis/#1.png}}}}
 %\usefonttheme[onlymath]{serif}
@@ -503,7 +505,7 @@
 		\end{itemize}
 	\end{frame}
 
-	\begin{frame}{Output Units\\ Linear Units for Gaussian Output Distributions}
+	\begin{frame}{Output Units - Linear Units}
 		\begin{itemize}
 			\item One kind of output unit is based on an affine transformation with no nonlinearity. (Linear Units)
 			\item Given features $h$, a layer of linear output units produces a vector $\hat{\bm{y}}=\bm{W}^T\bm{h}+\bm{b}$
@@ -514,7 +516,7 @@
 		\end{itemize}
 	\end{frame}
 
-	\begin{frame}{Output Units\\ Sigmoid Units for Bernoulli Output Distributions}
+	\begin{frame}{Output Units - Sigmoid Units}
 		\begin{itemize}
 			\item Many tasks require predicting the value of a binary variable $y$.
 			\item Classification problems with two classes can be cast in this form.
@@ -527,14 +529,276 @@
 		\end{itemize}
 	\end{frame}
 
-	\begin{frame}{Output Units\\ Sigmoid Units for Bernoulli Output Distributions}
+	\begin{frame}{Output Units - Sigmoid Units}
 		\begin{itemize}
-			\item A sigmoid output unit is defined by
+			\item A sigmoid output unit is defined by:
 			$$\hat{y}=\sigma(\bm{w}^T\bm{h}+b)$$
+			\item The sigmoid function is:
 			$$\sigma(\bm{h})=\frac{1}{1+e^{-\bm{h}}}$$
+			\item We can think of the sigmoid output unit as having two components.
+			\begin{enumerate}
+				\item A linear layer to compute $z=\bm{w}^T\bm{h}+b$
+				\item Convert $z$ into a probability by the sigmoid activation function.
+			\end{enumerate}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Output Units - Softmax Units}
+		\begin{itemize}
+			\item Softmax functions are most often used as the output of a classifier, to represent the probability distribution over $n$ different classes.
+			\item To generalize to the case of a discrete variable with $n$ values, we now need to produce a vector $\hat{\bm{y}}$, with $\hat{y_i}=P(y=i|\bm{x})$. 
+			\item We require not only that each element of $\hat{y_i}$ between 0 and 1, but also that the entire vector sums to 1.
+			$$\mathrm{Softmax}(\bm{z})_i=\frac{exp(z_i)}{\sum_jexp(z_j)}$$
+			\item Defining $P(y=1|\bm{x})=\sigma(z)$ is equivalent to defining $P(y=1|\bm{x})=softmax(\bm{z})_1$ with a two-dimensional $\bm{z}$ and $z_1=0$.
+			
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Output Units - Softmax Units}
+		From a neuroscientific point of view, it is interesting to think of the softmax as a way to create a form of competition between the units that participate in it: the softmax outputs always sum to 1 so an increase in the value of one unit necessarily corresponds to a decreases in the value of others. 
+		
+		This is analogous to the lateral inhibition that is believed to exist between nearby neurons in the cortex. At the extreme it becomes a for of $winner-take-all$ (one of the outputs is nearly 1 and the others are nearly 0).
+	\end{frame}
+
+	\begin{frame}{Hidden Units \\ Retified Linear Units and Their Generalizations}
+		\begin{itemize}
+			\item Easy to optimize: similar to linear units
+			$$g(z)=\mathrm{max}\{0,z\}$$
+			\item A variety of generalizations of ReLU guarantee that they receive gradient everywhere.
+			\item Three generalizations of rectified linear units are based on using a non-zero slope $\alpha_i$ when $z_i<0$:
+			$$h_i=g(\bm{z},\bm{\alpha})_i=\mathrm{max}(0,z_i)+\alpha_i\mathrm{min}(0,z_i)$$
+		 	\item \emph{Absolute value rectification} (\citet{jarrett2009best}) fixes $\alpha_i=-1$ to obtain $g(z)=|z|$
+		 	\item A leaky ReLU (\citet{maas2013rectifier}) fixes $\alpha_i$ to a small value like 0.01 
+		 	\item A \emph{parametric} ReLU or PReLU (\citet{he2015delving}) treats $\alpha_i$ as a learnable parameter.
+		 	\item Maxout (\citet{goodfellow2013maxout})
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Hidden Units \\ Logistic Sigmoid and Hyperbolic Tangent}
+		\begin{itemize}
+			\item Prior to the introduction of rectified linear units, most neural networks used the logistic sigmoid activation function 
+			$$g(z)=\sigma(z)$$
+			\item Or the hyperbolic tangent activation function
+			$$g(z)=\mathrm{tanh}(z)$$
+			\item These activation functions are closely related because $\mathrm{tanh}(z)=2\sigma(2z)-1$
 		\end{itemize}
 	\end{frame}
 	
+	\begin{frame}{Hidden Units \\ Other Hidden Units}
+		\begin{itemize}
+			\item \emph{Radial basis function} or RBF unit
+			$$h_i=\exp\left(-\frac{1}{\sigma_i^2}\lVert\bm{W}_{:,i}-x\rVert^2\right)$$
+			\item \emph{Softplus} (\citet{dugas2001incorporating})
+			$$g(a)=\xi(a)=\log(1+e^a)$$
+			\item \emph{Hard} tanh (\citet{collobert2004large})
+			$$g(a)=\max(-1,\min(1,a))$$
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Architecture Design}
+		\begin{itemize}
+			\item Another key design consideration for neural networks is determining the architecture.
+			\item The word \emph{architecture} refers to the overall structure of the network: 
+			\begin{enumerate}
+				\item How many units it should have
+				\item How these units should be connected to each other.
+			\end{enumerate}
+			\item Most networks are organized into groups of units called layers.
+			\item Most network architecture arrange these layers in a chain structure.
+			\item In this structure, the layers are given by
+			$$\bm{h}^{\,(1)}=g^{\,(1)}(\bm{W}^{\,(1)T}\bm{x}+\bm{b}^{\,(1)})$$
+			$$\bm{h}^{\,(2)}=g^{\,(2)}(\bm{W}^{\,(1)T}\bm{h}^{\,(1)}+\bm{b}^{\,(2)})$$ 
+			\item and so on.
+			\item Deeper networks often are able to far fewer units per layer and far fewer parameters and often generalize to the test set, but are also often harder to optimize.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Universal Approximation Properties and Depth}
+		\begin{itemize}
+			\item The reason why linear models are easy to train is their loss functions are convex.
+			\item Unfortunately, we often want to learn nonlinear functions.
+			\item Fortunately, feedforward networks with hidden layers provide a universal approximation framework: \emph{universal approximation theorem} (\citet{hornik1989multilayer,cybenko1989approximation})
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Other Architectural Considerations}
+		\begin{itemize}
+			\item Convolutional Networks for computer vision
+			\item Recurrent Neural Networks for sequence modeling
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Back-Propagation and Other Differentiation Algorithms}
+		\begin{itemize}
+			\item input $\bm{x}$ provide information $\rightarrow$ hidden layers $\rightarrow$ an output $\hat{\bm{y}}$
+			\item This process called \emph{forward propagation}.
+			\item During training, forward propagation can continue onward until it produces a scalar cost $J(\theta)$
+			\item Computing an analytical expression for gradient: computationally expensive.
+			\item The \emph{back-propagation} algorithm (\citet{williams1986learning}) allows the information from the cost to then flow backward through the network, in order to compute the gradient.
+			\item The gradient we require is the gradient of the cost function with respect to the parameters
+			$$\nabla_{\bm{\theta}} \mathrm{J}(\bm{\theta})$$
+		\end{itemize}
+	\end{frame}
+
+%	\begin{frame}{Computational Graphs}
+%		\begin{itemize}
+%			\item Formalizing computation as graph
+%			\item Variable: node $\rightarrow$ a scalar, vector, matrix, tensor, etc.
+%			\item Operation: a simple function of one or more variables.
+%		\end{itemize}
+%		\begin{columns}[onlytextwidth]
+%			\column{0.25\textwidth}
+%			\includegraphics[width=7em]{figures/computational-graph-1.png}
+%			\column{0.25\textwidth}
+%			\includegraphics[width=7em]{figures/computational-graph-2.png}
+%			\column{0.25\textwidth}
+%			\includegraphics[width=7em]{figures/computational-graph-3.png}
+%			\column{0.25\textwidth}
+%			\includegraphics[width=7em]{figures/computational-graph-4.png}
+%		\end{columns}
+%	\end{frame}
+
+	\begin{frame}{Chain Rule of Calculus}
+		\begin{itemize}
+			\item To compute the derivatives of composite function
+			\item Back-propagation is an algorithm that computes the chain rule, with a specific order of operations that is highly efficient.
+			$$y=g(x) \text{~and~} z=f(y)=f(g(x))$$
+			\item The chain rule states that
+			$$\frac{dz}{dx}=\frac{dz}{dy}\frac{dy}{dx}$$
+			\item Generalize beyond the scalar case. Suppose that $\bm{x}\in\mathbb{R}^m,\bm{y}\in\mathbb{R}^n$, $g$ maps from $\mathbb{R}^m to \mathbb{R}^n$, and $f$ maps from $\mathbb{R}^n$ to $\mathbb{R}$. If $\bm{y}=g(\bm{x})$ and $z=f(\bm{y})$ then
+			$$\frac{\partial z}{\partial x_i}=\sum_J\frac{\partial z}{\partial y_j}\frac{\partial y_j}{\partial x_i}$$
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Recursively Applying the Chain Rule to Obtain Backprob}
+		\begin{itemize}
+			\item Using the chain rule is straightforward.
+			\item However, actually evaluating that expression in a computer introduces some extra considerations
+			\item Repeat computation of subexpressions.
+			\item Store these subexpression and reuse.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Forward Propagation}
+		\begin{algorithm}[H]
+			\caption{Forward Propagation}  
+			\label{alg:forward-prop}  
+			\begin{algorithmic} 
+				\REQUIRE Network depth, $l$
+				\REQUIRE $\bm{W}^{\,(i)},i\in\{1,\dots,l\}$, the weight matrix of the model
+				\REQUIRE $\bm{b}^{\,(i)},i\in\{1,\dots,l\}$, the bias parameters of the model
+				\REQUIRE $\bm{x}$, the input to process
+				\REQUIRE $\bm{y}$, the target output
+				\STATE $\bm{h}^{\,(0)}=\bm{x}$
+				\FOR{$k=1,\dots,l$}
+					\STATE $\bm{a}^{\,(k)}=\bm{b}^{\,(k)}+\bm{W}^{\,(k)}\bm{h}^{\,(k-1)}$
+					\STATE $\bm{h}^{\,(l)}=f(\bm{a}^{\,(k)})$
+				\ENDFOR
+				\STATE $\hat{\bm{y}}=\bm{h}^{\,(l)}$
+				\STATE $J=L(\hat{\bm{y}},\bm{y})+\lambda\Omega(\theta)$
+			\end{algorithmic}  
+		\end{algorithm}  
+	\end{frame}
+
+	\begin{frame}{Backward Propagation}
+		\begin{algorithm}[H]
+			\caption{Backward computation}
+			\label{alg:backward-prop}
+			\begin{algorithmic}
+				\STATE After the forward computation, compute the gradient on the output layer:
+				\STATE $\bm{g}\leftarrow\nabla_{\hat{\bm{y}}}J=\nabla_{\hat{\bm{y}}}(\hat{\bm{y}},y)$
+				\FOR{$k=l,l-1,\dots,1$}
+					\STATE Convert the gradient on the layer's output into a gradient into the pre-nonlinearity activation:
+					\STATE $\bm{g}\leftarrow\nabla_{\hat{a}^{\,(k)}}J=\bm{g}\otimes f'(\bm{a}^{\,(k)})$
+					\STATE Compute gradients on weights and biases (including the regularization term):
+					\STATE $\nabla_{\bm{b}^{\,(k)}}J=\bm{g}+\lambda\nabla_{\bm{b}^{\,(k)}}\Omega(\theta)$
+					\STATE $\nabla_{\bm{W}^{\,(k)}}J=\bm{g}\bm{h}^{\,(k-1)T}+\lambda\nabla_{\bm{W}^{\,(k)}}\Omega(\theta)$
+					\STATE Propagate the gradients w.r.t. the next lower level hidden layer's activations:
+					\STATE $g\leftarrow\nabla_{\hat{h}^{\,(k-1)}}J=\bm{W}^{\,(k)T}\bm{g}$
+				\ENDFOR
+			\end{algorithmic}
+		\end{algorithm}
+	\end{frame}
+
+	\begin{frame}{Backward Propagation from UFLDL}
+		\begin{itemize}
+			\item
+			\href{http://ufldl.stanford.edu/wiki/index.php/UFLDL_Tutorial}{\underline{UFLDL}} (Unsupervised Feature Learning and Deep Learning)
+			\item\href{http://ufldl.stanford.edu/wiki/index.php/Backpropagation_Algorithm}{\underline{Backpropagation Algorithm}}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Backward Propagation from UFLDL}
+		\begin{itemize}
+			\item Suppose we have a fixed training set $\{(x^{\,(1)},y^{\,(1)}),\dots,(x^{\,(m)},y^{\,(m)})\}$ of $m$ training examples.
+			\item For a single training example $(x, y)$, cost function:
+			$$J(W,b;x,y)=\frac{1}{2}\lVert h_{W,b}(x)-y\rVert^2$$
+			\item Given a training set of $m$ examples, the overall cost function:
+			\begin{eqnarray*}
+				J(W,b)&=&\left[\frac{1}{m}\sum_{i=1}^mJ(W,b;x^{\,(i)},y^{\,(i)})\right]+\frac{\lambda}{2}\sum_{l=1}^{n_l-1}\sum_{i=1}^{s_l}\sum_{j=1}^{s_l+1}\left(W_{ji}^{\,(l)}\right)^2\\
+				&=&\left[\frac{1}{m}\sum_{i=1}^m\left(\frac{1}{2}\lVert h_{W,b}(x^{\,(i)})-y^{\,(i)}\rVert^2\right)\right]+\frac{\lambda}{2}\sum_{l=1}^{n_l-1}\sum_{i=1}^{s_l}\sum_{j=1}^{s_l+1}\left(W_{ji}^{\,(l)}\right)^2
+			\end{eqnarray*}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Backward Propagation from UFLDL}
+		\begin{itemize}
+			\item One iteration of gradient descent updates the parameters $W, b$ as follows:
+			\begin{eqnarray*}
+				W_{ij}^{\,(l)}&=&W_{ij}^{\,(l)}-\alpha\frac{\partial}{\partial W_{ij}^{\,(l)}}J(W,b)\\
+				b_i^{\,(l)}&=&b_i^{\,(l)}-\alpha\frac{\partial}{\partial b_i^{(l)}}J(W,b)
+			\end{eqnarray*}
+			\item The derivative of the overall cost function $J(W,b)$:
+			\begin{eqnarray*}
+				\frac{\partial}{\partial W_{ij}^{\,(l)}}J(W,b)&=&\left[\frac{1}{m}\sum_{i=1}^m\frac{\partial}{\partial W_{ij}^{\,(l)}}J(W,b;x^{\,(i)},y^{\,(i)})\right]+\lambda W_{ij}^{\,(l)}\\
+				\frac{\partial}{\partial b_i^{\,(l)}}J(W,b)&=&\frac{1}{m}\sum_{i=1}^m\frac{\partial}{\partial b_i^{\,(l)}}J(W,b;x^{\,(i)},y^{\,(i)})
+			\end{eqnarray*}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Backward Propagation from UFLDL}
+		\begin{itemize}
+			\item The intuition behind the backpropagation algorithm is as follows.
+			\begin{enumerate}
+				\item Given a training example $(x, y)$: run a "forward pass" to compute all the activations.
+				\item Then, for each node $i$ in layer $l$: compute an "error term" $\delta_i^{\,(;)}$.
+				\item For an output node, we can measure the difference between the network's activation and the true target value, and use that to define $\delta_i^{\,(n_l)}$ (where layer $n_l$ is the output layer).
+				\item For hidden nodes, we will compute $\delta_i^{\,(l)}$ based on a weighted average of the error terms of the nodes that uses $a_i^{\,(l)}$ as an input.
+			\end{enumerate}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Backward Propagation from UFLDL}
+		In detail, here is the backpropagation algorithm:
+		\begin{enumerate}
+			\item Perform a feedforward pass, computing the activations for layers $L_2$, $L_3$, and so on up to the output layer $L_{n_l}$.
+			\item For each output unit $i$ in layer $n_l$ (the output layer), set
+			$$\delta_i^{\,(n_l)}=\frac{\partial}{\partial z_i^{\,(n_l)}}\frac{1}{2}\lVert y-h_{W,b}(x)\rVert^2=-(y_i-a_i^{\,(n_l)})\cdot f'(z_i^{\,(n_l)})$$\\
+			\item For $l=n_l-1,n_l-2,n_l-3,\dots,2$, For each node $i$ in layer $l$, set
+			$$\delta_i^{l}=\left(\sum_{j=1}^{s_{l+1}}W_{ji}^{\,(l)}\delta_j^{\,(l+1)}\right)f'(z_i^{\,(l)})$$
+			\item Compute the desired partial derivatives:
+			\begin{eqnarray*}
+				\frac{\partial}{\partial W_{ij}^{\,(l)}}J(W,b;x,y)&=&a_j^{\,(l)}\delta_i^{\,(l+1)}\\
+				\frac{\partial}{\partial b_i^{\,(l)}}J(W,b;x,y)&=&\delta_i^{\,(l+1)}
+			\end{eqnarray*}
+		\end{enumerate}
+	\end{frame}
+
+	\begin{frame}{Backward Propagation from UFLDL}
+		We can also re-write the algorithm using matrix-vectorial notation. ("$\bullet$" denote the element-wise product operator)
+		\begin{enumerate}
+			\item Perform a feedforward pass, computing the activations for layers $L_2$, $L_3$, up to the output layer $L_{n_l}$
+			\item For the output layer (layer $n_l$), set:
+			$$\delta^(n_l)=-(y-a^{\,(n_l)})\bullet f'(z^{\,(n_l)})$$
+			\item For $l=n_l-1, n_l-2, n_l-3,\dots,2$, set
+			$$\delta^{\,(l)}=\left((W^{\,(l)})^T\delta^{\,(l+1)}\right)\bullet f'(z^{\,(l)})$$
+			\item Compute the desired partial derivatives:
+			\begin{eqnarray}
+				\nabla_{W^{\,(l)}}J(W,b;x,y)&=&\delta^{\,(l+1)}(a^{\,(l)})^T\\
+				\nabla_{b^{\,(l)}}J(W,b;x,y)&=&\delta^{\,(l+1)}
+			\end{eqnarray}
+		\end{enumerate}
+	\end{frame}
 
 
 	\begin{frame}[allowframebreaks]{References}
