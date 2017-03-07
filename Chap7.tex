@@ -111,6 +111,27 @@
 		\end{itemize}
 	\end{frame}
 	
+	\begin{frame}{$L^2$ Parameter Regularization}
+		\begin{itemize}
+			\item The $L^2$ norm penalty commonly known as \emph{weight decay}.
+			$$\Omega(\bm{\theta})=\frac{1}{2}\lVert w\rVert^2_2$$
+			
+			\pause
+			\item We can gain some insight into the behavior of weight decay regularization.
+			$$\tilde{J}(\bm{w};\bm{X},\bm{y})=\frac{\alpha}{2}\bm{w}^T\bm{w}+J(\bm{w};\bm{X},\bm{y})$$
+			$$\nabla_{\bm{w}}\tilde{J}(\bm{w};\bm{X},\bm{y})=\alpha\bm{w}+\nabla_{\bm{w}}J(\bm{w};\bm{X},\bm{y})$$
+			
+			\pause
+			\item The update
+			$$\bm{w}\leftarrow\bm{w}-\epsilon(\alpha\bm{w}+\nabla_{\bm{w}}J(\bm{w};\bm{X},\bm{y}))$$
+			$$\bm{w}\leftarrow(1-\epsilon\alpha)\bm{w}-\epsilon\nabla_{\bm{w}}J(\bm{w};\bm{X},\bm{y})$$
+
+			\pause
+			\item Shrink the weight vector by a constant factor on each step.
+			\item What happens over the entire course of training?
+		\end{itemize}
+	\end{frame}
+	
 	
 	\begin{frame}[allowframebreaks]{References}
 		\bibliography{Chap7}
