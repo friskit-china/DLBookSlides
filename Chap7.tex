@@ -1,0 +1,119 @@
+\documentclass[10pt]{beamer}
+\usetheme[background=light,block=fill,progressbar=foot]{metropolis}
+
+%% ctex configuration. slow compiling, comment unless using Chinese.
+%\usepackage[UTF8]{ctex}
+%\ctexset{refname=References}
+%%
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic} 
+\usepackage{transparent}
+\newcommand{\supercite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
+\newcommand{\emoji}[1]{\text{\raisebox{-0.2em}{\includegraphics[height=1em]{emojis/#1.png}}}}
+
+\begin{document}
+	\title{Deep Learning Book}
+	\subtitle{Chapter 7 \\ Regularization for Deep Learning}
+	\author{Botian Shi \\ botianshi@bit.edu.cn}
+	\date{March 7, 2017}
+	
+	\setbeamercovered{transparent=15}
+	
+	\begin{frame}[plain]
+		\titlepage
+	\end{frame}
+	
+	\begin{frame}
+		You can download the \LaTeX\, source code of this file from \href{https://github.com/friskit-china/DLBookSlides}{\underline{Here}}.
+	\end{frame}
+	
+	\begin{frame}{Generalization and Strategy}
+		\begin{itemize}
+			\item How to make an algorithm that will perform well not just on the training data, but also on new inputs?
+			\pause
+			\item Many strategies designed to reduce the test error, possibly at the expense of increased training error.
+			\pause
+			\item These strategies are known collectively as \textbf{regularization}.
+			\pause
+			\item Many regularization algorithm have been developed.
+			\item Developing more effective regularization strategies is one of the major research efforts in the field.
+			\pause
+			\item In this chapter, we describe regularization in more detail, focusing on regularization strategies for deep models or models that may be used as building blocks to form deep models.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Generalization and Strategy}
+		\begin{itemize}
+			\item There are many regularization strategies.
+			\begin{enumerate}
+				\pause
+				\item Put extra constrains on a machine learning model. (Adding restrictions on the parameter values.)
+				\pause
+				\item Add extra terms in the objective function that can be thought of as corresponding to a soft constraint on the parameter values.
+			\end{enumerate}
+			\pause
+			\item If chosen carefully, these extra constraints and penalties can lead to improved performance on the test set.
+			\pause
+			\item Sometimes these constraints and penalties are designed to
+			\begin{enumerate}
+				\item \textbf{encode} specific kinds of \textbf{prior knowledge}.
+				\item Express a generic preference for a simpler model class in order to promote generalization.
+				\item make an under-determined problem determined. (Provide more information)
+			\end{enumerate}
+			\pause
+			\item Other forms of regularization, known as ensemble methods, combine multiple hypotheses that explain the training data.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Generalization and Strategy}
+		\begin{itemize}
+			\item Treading increased bias for reduced variance.
+			\pause
+			\item An effective regularizer is one that makes a profitable trade, reducing variance significantly while not overly increasing the bias.
+			\pause
+			\item We now review several strategies for how to create such a large, deep, regularized model.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Norm Penalties}
+		\begin{itemize}
+			\item Regularization has been used for decades prior to the advent of deep learning.
+			\pause
+			\item Linear models allow simple straightforward and effective regularization strategies.
+			\pause
+			\item Most approaches are based on limiting the capacity of models by adding a \textbf{parameter norm penalty} $\Omega(\theta)$ to the objective function $J$:
+			$$\tilde{\mathit{J}}(\bm{\theta};\bm{X},\bm{y})=\mathit{J}(\bm{\theta};\bm{X},\bm{y})+\alpha\Omega(\bm{\theta})$$
+			where $\alpha\in[0,+\infty)$ weights the relative contribution of the norm penalty term.
+			\pause
+			\item Setting $\alpha$ to 0 results in no regularization. Larger values of $\alpha$ correspond to more regularization.
+			\pause
+			\item Optimize both $J$ and norm
+			\pause
+			\item Different $\Omega$ has different result.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Norm Penalties}
+		\begin{itemize}
+			\item We penalize \textbf{only the weights} of the affine transformation at each layer and leaves the biases unregularized.
+			\pause
+			\item We do not induce too much variance by leaving the biases unregularized.
+			\pause
+			\item Regularizing the bias parameters can introduce a significant amount of under-fitting.
+			\pause
+			\item We therefore use the vector $\bm{w}$ to indicate all of the weights that should be affected by a norm penalty, while the vector $\bm{\theta}$ denotes all of the parameters, including both $\bm{w}$ and the unregularized parameters.
+		\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}[allowframebreaks]{References}
+		\bibliography{Chap7}
+		\bibliographystyle{plainnat}
+	\end{frame}
+\end{document}
