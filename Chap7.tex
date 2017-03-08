@@ -2,8 +2,8 @@
 \usetheme[background=light,block=fill,progressbar=foot]{metropolis}
 
 %% ctex configuration. slow compiling, comment unless using Chinese.
-%\usepackage[UTF8]{ctex}
-%\ctexset{refname=References}
+\usepackage[UTF8]{ctex}
+\ctexset{refname=References}
 %%
 
 \usepackage{graphicx}
@@ -73,9 +73,27 @@
 	
 	\begin{frame}{Generalization and Strategy}
 		\begin{itemize}
-			\item Treading increased bias for reduced variance.
+			\item Principle: Treading increased bias for reduced variance.
 			\pause
-			\item An effective regularizer is one that makes a profitable trade, reducing variance significantly while not overly increasing the bias.
+			\item An effective regularizer is one that makes a profitable trade, \textbf{reducing variance} significantly while not overly \textbf{increasing the bias}.
+			\pause
+			\item In practice, \textbf{an overly complex model family does not necessarily include the target function or the true data generating process, or even a close approximation}.
+			\pause
+			\item We almost never have access to the true data generating process so we can never know for sure \textbf{if the model family being estimated includes the generating process or not}.		
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Generalization and Strategy}
+		\begin{itemize}
+			\item However, most applications of deep learning algorithms are to domains where the true data generating process is almost certainly outside the model family.
+			\pause
+			\item Deep learning algorithms are typically applied to \textbf{extremely complicated domains} such as images, audio sequences and text, for which the true generation process essentially involves \textbf{simulating the entire universe}.
+			\pause
+			\item To some extent, we are always trying to fit a square peg(the data generating process) into a round hole (our model family)\\ 『持方枘(ruì)而欲内圆凿』.
+			\pause
+			\item What this means is that controlling the complexity of the model is not a simple matter of finding the model of the \textbf{right size}, with the \textbf{right number of parameters}.
+			\pause
+			\item Insteamd, we might find that the best fitting model is a large model that has been regularized appropriately.
 			\pause
 			\item We now review several strategies for how to create such a large, deep, regularized model.
 		\end{itemize}
@@ -108,6 +126,9 @@
 			\item Regularizing the bias parameters can introduce a significant amount of under-fitting.
 			\pause
 			\item We therefore use the vector $\bm{w}$ to indicate all of the weights that should be affected by a norm penalty, while the vector $\bm{\theta}$ denotes all of the parameters, including both $\bm{w}$ and the unregularized parameters.
+			\pause
+			\item Sometime we use a separate penalty with a different $\alpha$ coefficient for each layer.
+			\item But it can be expensive to search for the correct value of multiple hyper-parameters, it is still reasonable to use the same weight decay at all layers just to reduce the size of search space.
 		\end{itemize}
 	\end{frame}
 	
@@ -116,8 +137,9 @@
 			\item The $L^2$ norm penalty commonly known as \emph{weight decay}.
 			$$\Omega(\bm{\theta})=\frac{1}{2}\lVert w\rVert^2_2$$
 			
+			\item This regularization strategy drives the weights closer to the origin. (as well as \emph{ridge regression} or \emph{Tikhonov regularization})
 			\pause
-			\item We can gain some insight into the behavior of weight decay regularization.
+			\item We can gain some insight into the behavior of weight decay regularization. (assume no bias for simplification)
 			$$\tilde{J}(\bm{w};\bm{X},\bm{y})=\frac{\alpha}{2}\bm{w}^T\bm{w}+J(\bm{w};\bm{X},\bm{y})$$
 			$$\nabla_{\bm{w}}\tilde{J}(\bm{w};\bm{X},\bm{y})=\alpha\bm{w}+\nabla_{\bm{w}}J(\bm{w};\bm{X},\bm{y})$$
 			
@@ -129,6 +151,12 @@
 			\pause
 			\item Shrink the weight vector by a constant factor on each step.
 			\item What happens over the entire course of training?
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^2$ Parameter Regularization}
+		\begin{itemize}
+			\item First, let $\bm{w}^*=\arg\min_{\bm{w}}J(\bm{w})$ (unregularized training cost)
 		\end{itemize}
 	\end{frame}
 	
