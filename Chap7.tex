@@ -153,10 +153,82 @@
 			\item What happens over the entire course of training?
 		\end{itemize}
 	\end{frame}
+	
+	\begin{frame}{Recall: Quadratic Approximation}
+		\begin{itemize}
+			\pause
+			\item In mathematics, approximation theory is concerned with how functions can best be approximated with simpler functions.
+			\pause
+			\item \textbf{local linear approximation} and \textbf{taylor expansion}
+			\begin{enumerate}
+				\pause
+				\item For example, when the independent variable of function $y=x^3$ changes, which is $\Delta x$, the variation of $y$ is
+				$$\Delta y=(x+\Delta x)^3-x^3=3x^2\Delta x+3x(\Delta x)^2+(\Delta x)^3$$
+				
+				\pause
+				\item When $\Delta x\rightarrow0$, omit last two terms: $\Delta y=3x^2\Delta x$
+				\pause
+				\item In general:
+				$$\Delta y=f(x_0+\Delta x)-f(x_0)\approx f'(x_0)\times\Delta x$$
+				$$\Delta y=f(x)-f(x_0)\text{,~}\Delta x=x-x_0$$
+				$$f(x)-f(x_0)=f'(x_0)\times(x-x_0)$$
+				$$f(x)=f(x_0)+f'(x_0)(x-x_0)$$
+				
+				\pause
+				\item In order to improve the precision, we can use second-order approximation, which is the second-order Taylor series expansion.
+				$$f(x)=f(x_0)+\frac{f'(x_0)}{1!}(x-x_0)+\frac{f''(x_0)}{2!}(x-x_0)^2$$
+			\end{enumerate}
+		\end{itemize}
+	\end{frame}
 
 	\begin{frame}{$L^2$ Parameter Regularization}
 		\begin{itemize}
-			\item First, let $\bm{w}^*=\arg\min_{\bm{w}}J(\bm{w})$ (unregularized training cost)
+			\pause
+			\item Let $\bm{w}^*=\arg\min_{\bm{w}}J(\bm{w})$ (unregularized training cost)
+			\pause
+			\item Making a quadratic approximation to the objective function in the neighborhood of the value of the weights. (In DLBook, they used $\hat{J}(\bm{\theta})$, but here we use $\hat{J}(\bm{w})$ to explain easier)
+			$$\hat{\bm{J}}(\bm{w})=\bm{J}(\bm{w}^*)+\frac{1}{2}(\bm{w}-\bm{w}^*)^T\bm{\mathbf{H}}(\bm{w}-\bm{w}^*)$$
+			\item Where $\mathbf{H}$ is the Hessian matrix of $J$ with respect to $\bm{w}$ evaluated at $\bm{w}^*$.
+			\pause
+			\item There is no first-order term in this quadratic approximation, because $\bm{w}^*$ is defined to be a minimum, where the gradient vanishes.
+			\pause
+			\item The minimum of $\hat{J}$ occurs where its gradient
+			$$\nabla_{\bm{w}}\hat{\bm{J}}(\bm{w})=\mathbf{H}(\bm{w}-\bm{w}^*)$$
+			is equal to 0.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{$L^2$ Parameter Regularization}
+		\begin{itemize}
+			\item To study the effect of weight decay, we modify $\nabla_{\bm{w}}\hat{\bm{J}}(\bm{w})=\mathbf{H}(\bm{w}-\bm{w}^*)$ by adding the weight decay gradient.
+			\pause
+			\item We can solve for the minimum of the regularized version of $\hat{\bm{J}}$.
+			\item We use the variable $\tilde{\bm{w}}$ to represent the location of the minimum.
+			$$\alpha\tilde{\bm{w}}+\mathbf{H}(\tilde{\bm{w}}-\bm{w}^*)=0$$
+			$$(\mathbf{H}+\alpha\mathbf{I})\tilde{\bm{w}}=\mathbf{H}\bm{w}^*$$
+			$$\tilde{\bm{w}}=\frac{\mathbf{H}\bm{w}^*}{(\mathbf{H+\alpha\mathbf{I}})}$$
+			
+			\pause
+			\item As $\alpha$ approaches 0, the regularized solution $\tilde{\bm{w}}$ approaches $\bm{w}^*$.
+			\item But what happens as $\alpha$ grows?
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{$L^2$ Parameter Regularization}
+		\begin{itemize}
+			\item Because $\mathbf{H}$ is real and symmetric, we can decompose it into a diagonal matrix $\bm{\Lambda}$ and an orthonormal basis of eigenvectors, $\bm{Q}$, such that $\mathbf{H}=\bm{Q\Lambda Q}^T$.
+			\pause
+			\item Applying the decomposition $\tilde{\bm{w}}=(\mathbf{H+\alpha\mathbf{I}})^{-1}\mathbf{H}\bm{w}^*$
+			\begin{eqnarray}
+				\tilde{\bm{w}}&=&(\bm{Q\Lambda Q}^T+\alpha\bm{I})^{-1}\bm{Q\Lambda Q}^T\bm{w}^*\\
+				&=&\left[\bm{Q}(\bm{\Lambda}+\alpha\bm{I})\bm{Q}^T\right]^{-1}\bm{Q\Lambda Q}^T\bm{w}^*\\
+				&=&\bm{Q}(\bm{\Lambda}+\alpha\bm{I})^{-1}\bm{\Lambda Q}^T\bm{w}^*\\
+				&=&\bm{Q}\frac{\bm{\Lambda}}{\bm{\Lambda}+\alpha\bm{I}}\bm{Q}^T\bm{w}^*
+			\end{eqnarray}
+			\pause
+			\item We see that the effect of weight decay is to rescale $\bm{w}^*$ along the axes defined by the eigenvectors of $\bm{H}$.
+			\pause
+			\item Specifically, the component of $\bm{w}^*$ that is aligned with the $i$-th eigenvector of $\bm{H}$ is rescaled by a factor of $\frac{\lambda_i}{\lambda_i+\alpha}$
 		\end{itemize}
 	\end{frame}
 	
