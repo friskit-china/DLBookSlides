@@ -4,6 +4,7 @@
 %% ctex configuration. slow compiling, comment unless using Chinese.
 \usepackage[UTF8]{ctex}
 \ctexset{refname=References}
+\ctexset{figurename=Fig.}
 %%
 
 \usepackage{graphicx}
@@ -229,6 +230,344 @@
 			\item We see that the effect of weight decay is to rescale $\bm{w}^*$ along the axes defined by the eigenvectors of $\bm{H}$.
 			\pause
 			\item Specifically, the component of $\bm{w}^*$ that is aligned with the $i$-th eigenvector of $\bm{H}$ is rescaled by a factor of $\frac{\lambda_i}{\lambda_i+\alpha}$
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^2$ Parameter Regularization}
+		This effect is illustrated in figure:
+		\begin{figure}
+			\caption{An illustration of the effect of $L^2$ (or weight decay) regularization on the value of the optimal $\bm{w}$}
+			\vspace{-1em}
+			\includegraphics[height=10em]{figures/l2-regularization.png}
+			\vspace{-1em}
+		\end{figure}
+		\begin{itemize}
+			\pause
+			\item The solid ellipses represent contours of equal value of the \textbf{unregularized objective}.
+			\pause
+			\item The dotted circles represent contours of equal value of the $L^2$ regularizer.
+			\pause
+			\item At the point $\tilde{\bm{w}}$, these competing objectives reach an equilibrium.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^2$ Parameter Regularization}
+		\begin{itemize}
+			\item How do these effects relate to machine learning in particular?
+			\pause
+			\item We can find out by studying linear regression, the cost function is the sum of squared errors:
+			$$(\bm{Xw}-\bm{y})^T(\bm{Xw}-\bm{y})$$
+			
+			\pause
+			\item Add $L^2$ regularization, the objective function changes to:
+			$$(\bm{Xw}-\bm{y})^T(\bm{Xw}-\bm{y})+\frac{1}{2}\alpha\bm{w}^T\bm{w}$$
+			
+			\pause
+			\item This changes the normal equations for the solution from:
+			$$\bm{w}=(\bm{X}^T\bm{X})^{-1}\bm{X}^T\bm{y} \text{~to~} \bm{w}=(\bm{X}^T\bm{X}+\alpha\bm{I})^{-1}\bm{X}^T\bm{y}$$
+			
+			\pause
+			\item The new matrix has the addition of $\alpha$ to the diagonal.
+			\pause
+			\item Diagonal correspond to the variance of each input feature.
+			\pause
+			\item We can see that $L^2$ regularization causes the learning algorithm to "perceive" the input $\bm{X}$ as having higher variance, which makes it shrink the weights on features whose covariance with the output target is low compared to this added variance.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^1$ Regularization}
+		\begin{itemize}
+			\item $L^1$ regularization on the model parameter $w$ is defined as:
+			$$\Omega(\bm{\theta})=\lVert\bm{w}\rVert_1=\sum_i\left|w_i\right|$$
+			
+			\item We will now discuss the effect of $L^1$ regularization on the simple linear regression model, with no bias parameters, that we studied in our analysis of $L^2$ regularization.
+			\pause
+			\item In particular, we are interested in delineating the differences between $L^1$ and $L^2$ forms of regularization.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^1$ Regularization}
+		\begin{itemize}
+			\item As with $L^2$ weight decay, $L^1$ weight decay controls the strength of the regularization by scaling the penalty $\Omega$ using a positive hyperparameter $\alpha$.
+			\pause
+			\item Thus, the regularized objective function $\tilde{J}(\bm{w};\bm{X},\bm{y})$ is given by
+			$$\tilde{J}(\bm{w};\bm{X},\bm{y})=\alpha\lVert\bm{w}\rVert_1+J(\bm{w;\bm{X},\bm{y}})$$
+			
+			\pause
+			with the corresponding gradient:
+			$$\nabla_{\bm{w}}\tilde{J}(\bm{w};\bm{X},\bm{y})=\alpha\mathrm{sign}(\bm{w})+\nabla_{\bm{w}}J(\bm{w};\bm{X},\bm{y})$$
+			
+			\pause
+			where $\mathrm{sign}(\bm{w})$ is simply the sign of $\bm{w}$ applied element-wise.
+			
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{}
+		$$\nabla_{\bm{w}}\tilde{J}(\bm{w};\bm{X},\bm{y})=\alpha\mathrm{sign}(\bm{w})+\nabla_{\bm{w}}J(\bm{w};\bm{X},\bm{y})$$
+		\begin{itemize}
+			\item From this equation, we can see that the effect of $L^1$ regularization is quite different from that of $L^2$ regularization.
+			\pause
+			\item We can see that the regularization contribution to the gradient no longer scales linearly with each $w_i$; instead it is a constant factor with a sign equal to $\mathrm{sign}(w_i)$.
+			\pause
+			\item One consequence of this form of the gradient is that we will not necessarily see clean algebraic solutions to quadratic approximations of $J(\bm{X},\bm{y};\bm{w})$ as we did for $L^2$ regularization.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{$L^1$ Regularization}
+		\begin{itemize}
+			\item Out simple linear model has a quadratic cost function that we can represent via its Taylor series.
+			\pause
+			\item Alternately, we could imaging that this is a truncated Taylor series approximating the cost function of a more sophisticated model. 
+			\pause
+			\item The gradient in this setting is given by
+			$$\nabla_w\tilde{J}(\bm{w})=\mathbf{H}(\bm{w}-\bm{w}^*)$$
+			
+			\pause
+			\item Because the $L^1$ penalty does not admit clean algebraic expressions in the case of a full general Hessian, we will also make the further simplifying assumption that the Hessian is a diagonal, $\mathbf{H}=\mathrm{diag}([H_{1,1},\dots,H_{n,n}])$, where each $H_{i,i}>0$.
+			\pause
+			\item This assumption holds if the data for the linear regression problem has been preprocessed to remove all correlation between the input features, which may be accomplished using PCA.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^1$ Regularization}
+		\begin{itemize}
+			\item Our quadratic approximation of the $L^1$ regularized objective function decomposes into a sum over the parameters:
+			$$\tilde{J}(\bm{w};\bm{X},\bm{y})=J(\bm{w}^*;\bm{X},\bm{y})+\sum_i\left[\frac{1}{2}H_{i,i}(\bm{w}_i-\bm{w}_i^*)^2+\alpha\left|w_i\right|\right]$$
+			
+			\pause
+			\item The problem of minimizing this approximate cost function has an analytical solution (for each dimension $i$), with the following form:
+			$$w_i=\mathrm{sign}(w_i^*)max\left\{\left|w_i^*\right|-\frac{\alpha}{H_{i,i}}, 0\right\}$$
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^1$ Regularization}
+		$$w_i=\mathrm{sign}(w_i^*)max\left\{\left|w_i^*\right|-\frac{\alpha}{H_{i,i}}, 0\right\}$$
+		
+		\begin{itemize}
+			\pause
+			\item Consider the situation where $w_i^*>0$ for all $i$. There are two possible outcomes:
+			\begin{enumerate}
+				\pause
+				\item The case where $w_i^*\leq\frac{\alpha}{H_{i,i}}$. Here the optimal value of $w_i$ under the regularized objective is simply $w_i=0$. This occurs because the contribution of $J(\bm{w};\bm{X},\bm{y})$ to the regularized objective $\tilde{J}(\bm{w};\bm{X},\bm{y})$ is overwhelmed--in direction $i$--by the $L^1$ regularization which pushes the value of $w_i$ to zero.
+				\pause
+				\item The case where $w_i^*>\frac{\alpha}{H_{i,i}}$. In this case, the regularization does not move the optimal value of $w_i$ to zero but instead it just shifts it in that direction by a distance equal to $\frac{\alpha}{H_{i,i}}$.
+			\end{enumerate}
+			\pause
+			\item A similar process happens when $w_i^*<0$, but with the $L^1$ penalty making $w_i$ less negative by $\frac{\alpha}{H_{i,i}}$, or 0.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{$L^1$ Regularization}
+		\begin{itemize}
+			\item In comparison to $L^2$ regularization, $L^1$ regularization results in a solution that is more \emph{sparse}.
+			\pause
+			\item Sparsity in this context refers to the fact that some parameters have an optimal value of zero.
+			\pause
+			\item The sparsity property induced by $L^1$ regularization has been used extensively as a \emph{feature selection} mechanism.
+			\pause
+			\item Feature selection simplifies a machine learning problem by choosing which subset of the available features should be used.
+			\pause
+			\item In particular, the well known LASSO (\citep{tibshirani1996regression}) (least absolute shrinkage and selection operator) model integrates an $L^1$ penalty with a linear model and a least squares cost function.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Sparsity? $L^1$ and $L^2$}
+		\begin{figure}
+			\includegraphics[height=15em]{figures/prml-l1-l2-contours.png}
+			\caption{Plot of the contours of the unregularized error function (blue) along with the constraint region for the quadratic regularizer on the left and the lasso regularizer on the right.}
+		\end{figure}
+	\end{frame}
+	
+	\begin{frame}{Norm Penalties as Constrained Optimization}
+		\begin{itemize}
+			\item Consider the cost function regularized by a parameter norm penalty:
+			$$\tilde{J}(\bm{\theta};\bm{X},\bm{y})=J(\bm{\theta};\bm{X},\bm{y})+\alpha\Omega(\bm{\theta})$$
+			
+			\pause
+			\item If we want to constrain $\Omega(\bm{\theta})$ to be less than some constant $k$, we could construct a generalized Language function
+			$$\mathcal{L}(\bm{\theta,\alpha;\bm{X},\bm{y}})=J(\bm{\theta};\bm{X},\bm{y})+\alpha(\Omega(\theta)-k)$$
+			
+			\pause
+			\item The solution to the constrained problem is given by
+			$$\bm{\theta}^*=\mathop{\arg\min}_{\bm{\theta}}\mathop{\max}_{\alpha,\alpha\geq0}\mathcal{L}(\bm{\theta,\alpha}) $$
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Norm Penalties as Constrained Optimization}
+		$$\bm{\theta}^*=\mathop{\arg\min}_{\bm{\theta}}\mathop{\max}_{\alpha,\alpha\geq0}\mathcal{L}(\bm{\theta,\alpha}) $$
+		
+		\begin{itemize}
+			\item Solving this problem requires modifying both $\bm{\theta}$ and $\alpha$.
+			\pause
+			\item Many different procedures are possible--some may use gradient descent, while others may use analytical solutions for where the gradient is zero--but in all procedures $\alpha$ must increase whenever $\Omega(\bm{\theta})>k$ and decrease whenever $\Omega(\bm{\theta})<k$.
+			\pause
+			\item All positive $\alpha$ encourage $\Omega(\bm{\theta})$ to shrink.
+			\pause
+			\item The optimal value $a^*$ will encourage $\Omega(\theta)$ to shrink, but not so strongly to make $\Omega(\bm{\theta})$ become less than $k$.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Regularization and Under-Constrained Problems}
+		\begin{itemize}
+			\item In some cases, regularization is necessary.
+			\pause
+			\item Many linear models in machine learning, including linear regression and PCA, depend on inverting the matrix $\bm{X}^T\bm{X}$.
+			\pause
+			\item This is not possible whenever $\bm{X}^T\bm{X}$ is singular.
+			\pause
+			\item This matrix can be singular whenever the data generating distribution truly has no variance in some direction, or when no variance in \textbf{observed} in some direction because there are fewer examples (rows of $\bm{X}$) than input features (columns of $\bm{X}$).
+			\pause
+			\item In this case, many forms of regularization correspond to inverting $\bm{X}^T\bm{X}+\alpha\bm{I}$ instead. This regularized matrix is guaranteed to be invertible.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Regularization and Under-Constrained Problems}
+		\begin{itemize}
+			\item These linear problems have closed form solutions when the relevant matrix is invertible. 
+			\pause
+			\item It is also possible for a problem with no closed form solution to be underdetermined.
+			\pause
+			\item An example is logistic regression applied to a problem where the classes are linearly separable.
+			\pause
+			\item If a weight vector $\bm{w}$ is able to achieve perfect classification, then $2\bm{w}$ will also achieve perfect classification and higher likelihood.
+			\pause
+			\item An iterative optimization procedure like SGD will continually increase the magnitude of $\bm{w}$ and, in theory, will never halt.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Regularization and Under-Constrained Problems}
+		\begin{itemize}
+			\item We can solve underdetermined linear equations using the Moore-Penrose pseudoinverse. Recall that one definition of the pseudoinverse $\bm{X}^+$ of a matrix $\bm{X}$ is
+			$$\bm{X^+}=\lim_{a\rightarrow0}(\bm{X}^T\bm{X}+\alpha\bm{I})^{-1}\bm{X}^T$$
+			
+			\pause
+			\item We can now recognize this equation as performing linear regression with weight decay.
+			\pause
+			\item We can interpret the pseudoinverse as stabilizing underdetermined problems using regularization.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Dataset Augmentation}
+		\begin{itemize}
+			\item The best way to make a machine learning model generalize better is to train it on more data.
+			\pause
+			\item In practice, it is limited.
+			\pause
+			\item Create fake data and add it to the training set.
+			\pause
+			\item This approach is easiest for classification.
+			\pause
+			\item A classifier needs to take a complicated, high dimensional input $\bm{x}$ and summarize it with a single category identity $y$.
+			\pause
+			\item This means that the main task facing a classifier is to be invariant to a wide variety of transformations.
+			\pause
+			\item We can generate new $(\bm{x},y)$ pairs easily just by transforming the $\bm{x}$ inputs in our training set.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Dataset Augmentation}
+		\begin{itemize}
+			\item Dataset augmentation has been a particularly effective technique for a specific classification problem: object recognition.
+			\pause
+			\item Images are high dimensional and include an enormous variety of factors of variation, many of which can be easily simulated.
+			\pause
+			\item One must be careful not to apply transformations that would change the correct class. (e.g. '6' and '9', 'b' and 'd').
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Dataset Augmentation}
+		\begin{itemize}
+			\item Dataset augmentation is effective for speech recognition task as well (\citet{jaitly2013vocal}).
+			\pause
+			\item Inject noise in the input to a neural network can also be seen as a form of data augmentation (\citet{sietsma1991creating}).
+			\pause
+			\item For many classification and even some regression tasks, the task should still be possible to solve even if small random noise is added to the input.
+			\pause
+			\item One way to improve the robustness of neural networks is simply to train them with random noise applied to their inputs.
+			\pause
+			\item Input noise injection is part of some unsupervised learning algorithms such as the denoising autoencoder (\citet{vincent2008extracting}).
+			\pause
+			\item Dropout, a powerful regularization strategy can be seen as a process of constructing new inputs by \textbf{multiplying} by noise.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Dataset Augmentation}
+		\begin{itemize}
+			\item When comparing machine learning benchmark results, it is important to take the effect of dataset augmentation into account.
+			\pause
+			\item Often, hand-designed dataset augmentation schemes can dramatically reduce the generalization error.
+			\pause
+			\item When comparing machine learning algorithm A and machine learning algorithm B, it is necessary to make sure that both algorithms were evaluated using the same hand-designed dataset augmentation schemes.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Noise Robustness}
+		\begin{itemize}
+			\item For some models, the addition of noise with infinitesimal variance at the input of the model is equivalent to imposing a penalty on the norm of the weights (\citet{bishop1995regularization,bishop1995training}).
+			\pause
+			\item Noise injection can be much more powerful than simply shrinking the parameters, especially when the noise is added to the hidden units.
+			\pause
+			\item Noise applied to the hidden units is such an important topic; the dropout algorithm describe later.
+			\pause
+			\item Another way that noise can be added into the weights.
+			\pause
+			\item This technique has been used primarily in the context of recurrent neural networks (\citet{jim1996analysis,graves2011practical}).
+			\pause
+			\item This can also be interpreted as equivalent (under some assumptions) to a more traditional form of regularization.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Noise Robustness}
+		\begin{itemize}
+			\item We study the regression setting, where we wish to train a function $\tilde{y}(\bm{x})$ that maps a set of features $\bm{x}$ to a scalar using the least-squares cost function between the model predictions $\tilde{y}(\bm{x})$ and the true values $y$:
+			$$J=\mathbb{E}_{p(x,y)}\left[(\hat{y}(x)-y)^2\right]$$
+			
+			\pause
+			\item The training set with $m$ examples: ${(\bm{x}^{(1)},y^{(1)}),\dots,(\bm{x}^{(m)},y^{(m)})}$.
+			\pause
+			\item We now assume that with each input presentation we also include a random perturbation $\epsilon_{\bm{W}}~\mathcal{N}(\bm{\epsilon};\bm{0},\eta\bm{I})$ of the network weights.
+			\pause
+			\item We denote the perturbed model as $\hat{y}_{\epsilon_{\bm{W}}}(\bm{x})$. The objective function thus becomes:
+			\begin{eqnarray*}
+				\tilde{J}_{\bm{W}}&=&\mathbb{E}_{p(\bm{x},y,\epsilon_{\bm{W}})}\left[(\hat{y}_{\epsilon_{\bm{w}}}(\bm{x})-y)^2\right]\\
+				&=&\mathbb{E}_{p(\bm{x},y,\epsilon_{\bm{W}})}\left[\hat{y}^2_{\epsilon_{\bm{W}}}(\bm{x}-2y\hat{y}_{\epsilon_{\bm{W}}}+y^2)\right]
+			\end{eqnarray*}
+			\pause
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Noise Robustness}
+		$$\tilde{J}_{\bm{W}}=\mathbb{E}_{p(\bm{x},y,\epsilon_{\bm{W}})}\left[\hat{y}^2_{\epsilon_{\bm{W}}}(\bm{x}-2y\hat{y}_{\epsilon_{\bm{W}}}+y^2)\right]$$
+		
+		\begin{itemize}
+			\item For small $\eta$, the minimization of $J$ with added weight noise (with covariance $\eta\bm{I}$) is equivalent to minimization of $J$ with an additional regularization.
+			\pause
+			\item This form of regularization encourages the parameters to go to regions of parameter space where small pertubations of the weights have a relatively small influence on the output.
+			\pause
+			\item In other words, it pushes the model weights, finding points that are not merely minima, but minima surrounded by flat regions (\citet{hochreiter1995simplifying}).
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Noise Robustness\\ Injecting Noise at the Output Target}
+		\begin{itemize}
+			\item Most datasets have some amount of mistakes in the $y$ labels.
+			\pause
+			\item It can be harmful to maximize $\log p(y|\bm{x})$ when $y$ is a mistake.
+			\pause
+			\item One way to prevent this is to explicitly model the noise on the labels.
+			\pause
+			\item For example, we can assume that for some small constant $\epsilon$, the training set label $y$ is correct with probability $1-\epsilon$, and otherwise any of the other possible labels might be correct.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Semi-Supervised Learning}
+		\begin{itemize}
+			\item In the paradigm of semi-supervised learning, both unlabeled examples from $P(\bm{x})$ and labeled examples from $P(\bm{x},\bm{y})$ are used to estimate $P(\bm{y|\bm{x}})$ or predict $\bm{y}$ from $\bm{x}$.
+			\item One can construct models in which a generative model of either $(\bm{x})$ or $P(\bm{x},\bm{y})$ shares parameters with a discriminative model of $P(\bm{y}|\bm{x})$.
+			\item The generative criterion then express a particular form of prior belief about the solution to the supervised learning problem, namely that the structure of $P(\bm{x})$ is connected to the structure of $P(\bm{y}|\bm{x})$ in a way that is captured by the shared parameterization.
+			\item By controlling how much of the generative criterion is included in the total criterion, one can find a better trade-off than with a purely generative or purely discriminative training criterion.
+			\item \citet{hinton2008using} describe a method for learning the kernel function of a kernel machine used for regression, in which the usage of unlabeled examples for modeling $P(\bm{x})$ improves $P(\bm{y}|\bm{x})$ quite significantly.
 		\end{itemize}
 	\end{frame}
 	
