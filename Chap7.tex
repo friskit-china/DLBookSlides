@@ -564,10 +564,44 @@
 	\begin{frame}{Semi-Supervised Learning}
 		\begin{itemize}
 			\item In the paradigm of semi-supervised learning, both unlabeled examples from $P(\bm{x})$ and labeled examples from $P(\bm{x},\bm{y})$ are used to estimate $P(\bm{y|\bm{x}})$ or predict $\bm{y}$ from $\bm{x}$.
+			\pause
 			\item One can construct models in which a generative model of either $(\bm{x})$ or $P(\bm{x},\bm{y})$ shares parameters with a discriminative model of $P(\bm{y}|\bm{x})$.
+			\pause
 			\item The generative criterion then express a particular form of prior belief about the solution to the supervised learning problem, namely that the structure of $P(\bm{x})$ is connected to the structure of $P(\bm{y}|\bm{x})$ in a way that is captured by the shared parameterization.
+			\pause
 			\item By controlling how much of the generative criterion is included in the total criterion, one can find a better trade-off than with a purely generative or purely discriminative training criterion.
+			\pause
 			\item \citet{hinton2008using} describe a method for learning the kernel function of a kernel machine used for regression, in which the usage of unlabeled examples for modeling $P(\bm{x})$ improves $P(\bm{y}|\bm{x})$ quite significantly.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Multi-Task Learning}
+		\begin{itemize}
+			\item Multi-task learning is a way to improve generalization by pooling the examples arising out of several tasks.
+			\item In the same way that additional training examples put more pressure on the parameters of the model towards values that generalize well, when part of a model is shared across tasks, that part of the model is more constrained towards good values, often yielding better generalization.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Multi-Task Learning}
+		\begin{itemize}
+			\item Here is a very common form of multi-task learning.
+			\item Different supervised tasks (predicting $\bm{y}^{(i)}$ given $\bm{x}$) share the same input $\bm{x}$, as well as some intermediate-level representation $\bm{h}^{(\text{shared})}$ capturing a common pool of factors.
+			
+			\begin{columns}[T,onlytextwidth]
+				\column{0.6\textwidth}
+				\begin{itemize}
+					\item The model has two kinds of parts:
+					\begin{enumerate}
+						\item Task-specific parameters (which only benefit from the examples of their task to achieve good generalization). These are the upper layers.
+						\item Generic parameters, shared across all the tasks (which benefit from the pooled data of all the tasks). These are the lower years.
+					\end{enumerate}
+				\end{itemize}
+				\column{0.4\textwidth}
+				\begin{figure}
+					\includegraphics[height=12em]{figures/multi-task-learning.png}
+				\end{figure}
+			\end{columns}
+			\item The factors that explain the variations are shared across two or more tasks.
 		\end{itemize}
 	\end{frame}
 	
