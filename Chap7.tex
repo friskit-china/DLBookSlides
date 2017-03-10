@@ -220,12 +220,12 @@
 			\item Because $\mathbf{H}$ is real and symmetric, we can decompose it into a diagonal matrix $\bm{\Lambda}$ and an orthonormal basis of eigenvectors, $\bm{Q}$, such that $\mathbf{H}=\bm{Q\Lambda Q}^T$.
 			\pause
 			\item Applying the decomposition $\tilde{\bm{w}}=(\mathbf{H+\alpha\mathbf{I}})^{-1}\mathbf{H}\bm{w}^*$
-			\begin{eqnarray}
+			\begin{eqnarray*}
 				\tilde{\bm{w}}&=&(\bm{Q\Lambda Q}^T+\alpha\bm{I})^{-1}\bm{Q\Lambda Q}^T\bm{w}^*\\
 				&=&\left[\bm{Q}(\bm{\Lambda}+\alpha\bm{I})\bm{Q}^T\right]^{-1}\bm{Q\Lambda Q}^T\bm{w}^*\\
 				&=&\bm{Q}(\bm{\Lambda}+\alpha\bm{I})^{-1}\bm{\Lambda Q}^T\bm{w}^*\\
 				&=&\bm{Q}\frac{\bm{\Lambda}}{\bm{\Lambda}+\alpha\bm{I}}\bm{Q}^T\bm{w}^*
-			\end{eqnarray}
+			\end{eqnarray*}
 			\pause
 			\item We see that the effect of weight decay is to rescale $\bm{w}^*$ along the axes defined by the eigenvectors of $\bm{H}$.
 			\pause
@@ -647,18 +647,28 @@
 			\begin{algorithmic}
 				\pause
 				\STATE Let $n$ be the number of steps between evaluations.
+				\pause
 				\STATE Let $p$ be the "patience", the number of times to observe worsening validation set error before giving up.
+				\pause
 				\STATE Let $\bm{\theta_o}$ be the initial parameters.
+				\pause
 				\STATE $\bm{\theta}\leftarrow\bm{\theta_o}$; $i\leftarrow0$; $j\leftarrow0$; $v\leftarrow\infty$; $i^*\leftarrow i$
+				\pause
 				\WHILE{$j<p$}
+					\pause
 					\STATE Update $\bm{\theta}$ by running the training algorithm for $n$ steps.
+					\pause
 					\STATE $i\leftarrow i+n$; $v'\leftarrow\text{ValidationSetError}(\bm{\theta})$
+					\pause
 					\IF{$v'<v$}
+						\pause
 						\STATE $j\leftarrow0$; $\bm{\theta^*\leftarrow\bm{\theta}}$; $i^*\leftarrow i$; $v\leftarrow v'$
 					\ELSE
+						\pause
 						\STATE $j\leftarrow j+1$
 					\ENDIF
 				\ENDWHILE
+				\pause
 				\STATE Best parameters are $\bm{\theta^*}$, best number of training steps is $i^*$.
 			\end{algorithmic}
 		\end{algorithm}
@@ -667,19 +677,172 @@
 	\begin{frame}{Early Stopping}
 		\begin{itemize}
 			\item One way to think of early stopping is as a very efficient hyperparameter selection algorithm.
+			\pause
 			\item In this view, the number of training steps is just another hyperparameter.
+			\pause
 			\item The only significant cost to choosing this hyperparameter automatically via early stopping is running the validation set evaluation periodically during training.
+			\pause
 			\item An additional cost to early stopping is the need to maintain a copy of the best parameters. This cost is generally negligible. (GPU->CPU/MEMORY->HDD).
 		\end{itemize}
 	\end{frame}
 
 	\begin{frame}{Early Stopping}
 		\begin{itemize}
-			\item How early stopping acts as a regularizer?
+			\item How early stopping acts as a regularizer? 
+			\pause
+			\item \citet{bishop1995regularization} , \citet{sjoberg1995overtraining} argued that early stopping has the effect of restricting the optimization procedure to a relatively small volume of parameter space in the neighborhood of the initial parameter value $\bm{\theta_o}$.
+			\pause
+			\begin{figure}
+				\includegraphics[height=10em]{figures/early-stop-act-as-regularization.png}
+			\end{figure}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item In order to compare with classical $L^2$ regularization, we examine a simple setting where the only parameters are linear weights ($\bm{\theta}=\bm{w}$). 
+			\pause
+			\item We can model the cost function $J$ with a quadratic approximation in the neighborhood of the empirically optimal value of the weights $\bm{w}^*$:
+			$$\hat{J}(\bm{\theta})=J(\bm{w}^*)+\frac{1}{2}(\bm{w}-\bm{w}^*)^T\bm{H}(\bm{w}-\bm{w}^*)$$
+			where $\bm{H}$ is Hessian matrix of $J$ with respect to $\bm{w}$ evaluated at $\bm{w}^*$.
+			\pause
+			\item Given the assumption that $\bm{w}^*$ is a minimum of $J(\bm{w})$, we know that $\bm{H}$ is positive semidefinite.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item Under a local Taylor series approximation, the gradient:
+			$$\nabla_{\bm{w}}\hat{J}(\bm{w})=\bm{H}(\bm{w}-\bm{w}^*)$$
+			
+			\pause
+			\item We are going to study the trajectory followed by the parameter vector during training.
+			\pause
+			\item For simplicity, let us set the initial parameter vector to the origin, that is $\bm{w}^{(0)}=\bm{0}$.
+			\pause
+			\item Let us suppose that we update the parameters via gradient descent:
+			\begin{eqnarray*}
+				\bm{w}^{(\tau)}&=&\bm{w}^{(\tau-1)}-\epsilon\nabla_{\bm{w}}J(\bm{w}^{(\tau-1)})\\
+				&=&\bm{w}^{(\tau-1)}-\epsilon\bm{H}(\bm{w}^{(\tau-1)}-\bm{w}^*)\\
+				\bm{w}^{(\tau)}-\bm{w}^*&=&(\bm{I}-\epsilon\bm{H})(\bm{w}^{(\tau-1)}-\bm{w}^*)
+				\pause
+			\end{eqnarray*}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item Let us now rewrite this expression in the space of the eigenvectors of $\bm{H}$, exploiting the eigendecomposition of $\bm{H}: \bm{H}=\bm{Q\Lambda Q}^T$, where $\bm{\Lambda}$ is a diagonal matrix and $\bm{Q}$ is an orthonormal basis of eigenvectors.
+			\begin{eqnarray*}
+				\bm{w}^{(\tau)}-\bm{w}^*&=&(\bm{I}-\epsilon\bm{Q\Lambda Q}^T)(\bm{w}^{(\tau-1)}-\bm{w}^*)\\
+				\bm{Q}^T(\bm{w}^{(\tau)}-\bm{w}^*)&=&(\bm{I}-\epsilon\bm{\Lambda})\bm{Q}^T(\bm{w}^{(\tau-1)}-\bm{w}^*)
+			\end{eqnarray*}
+			
+			\pause
+			\item Assuming that $\bm{w}^{(0)}=0$ and that $\epsilon$ is chosen to be small enough to guarantee $|1-\epsilon\lambda_i|<1$, the parameter trajectory during training training after $\tau$ parameter updates is as follows:
+			$$\bm{Q}^T\bm{w}^{(\tau)}=\left[\bm{I}-(\bm{I}-\epsilon\Lambda)^{\tau}\right]\bm{Q}^T\bm{w}^*$$.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item In $L^2$ regularization:
+			\begin{eqnarray}
+				\tilde{\bm{w}}&=&\bm{Q}(\bm{\Lambda+\alpha\bm{I}})^{-1}\bm{\Lambda Q}^T\bm{w}^*\\
+				\bm{Q}^T\tilde{\bm{w}}&=&(\Lambda+\alpha\bm{I})^{-1}\Lambda\bm{Q}^T\bm{w}^*\\
+				\bm{Q}^T\tilde{\bm{w}}&=&\left[\bm{I}-(\bm{\Lambda}+\alpha\bm{I})^{-1}\alpha\right]\bm{Q}^T\bm{w}^*
+			\end{eqnarray}
+			
+			\pause
+			\item Compare with $\bm{Q}^T\bm{w}^{(\tau)}=\left[\bm{I}-(\bm{I}-\epsilon\Lambda)^{\tau}\right]\bm{Q}^T\bm{w}^*$, we can find:
+			$$(\bm{I}-\epsilon\Lambda)^\tau=(\Lambda+\alpha\bm{I})^{-1}\alpha$$
+			
+			\pause
+			\item Then $L^2$ regularization and early stopping is equivalent. 
+			\pause
+			\item Going even further, by taking logarithms and using the series expansion for $\log(1+x)$, if all $\lambda_i$ are small then:
+			\begin{eqnarray}
+				\tau\approx\frac{1}{\epsilon\alpha}\text{\quad;\quad}\alpha\approx\frac{1}{\tau\epsilon}
+			\end{eqnarray}
+			
+			\pause
+			\item That is, under these assumptions, the number of training iterations $\tau$ plays a role inversely proportional to the $L^2$ regularization parameter, and the inverse of $\tau\epsilon$ plays the role of the weight decay coefficient.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Tying and Parameter Sharing}
+		\begin{itemize}
+			\pause
+			\item Thus far, we have discussed adding constraints or penalties to the parameters.
+			\pause
+			\item However, sometimes we may need other ways to express our \text{prior knowledge} about suitable values of the model parameters.
+			\pause
+			\item Sometimes we might not know precisely what values that parameters should take but we know, from knowledge of the domain and model architecture, that there should be some dependencies between the model parameters.
+			\pause
+			\item A common type of dependency that we often want to express is that certain parameters should be close to one another.
 		\end{itemize}
 	\end{frame}
 	
 	
+	\begin{frame}{Parameter Tying and Parameter Sharing}
+		Consider the following scenario:
+		\begin{itemize}
+			\pause
+			\item We have two models performing the same classification task.
+			\pause
+			\item But with somewhat different input distributions.
+			\pause
+			\item Formally, we have model A with parameters $\bm{w}^{(A)}$ and model B with parameters $\bm{w}^{(B)}$.
+			\pause
+			\item The two models map the input to different, but related outputs: $\hat{y}^{(A)}=f(\bm{w}^{(A)},\bm{x})$ and $\hat{y}^{(B)}=g(\bm{w}^{(B)}, \bm{x})$.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Tying and Parameter Sharing}
+		\begin{itemize}
+			\item Let us imagine that the tasks are similar enough (perhaps with similar input and output distributions) that we believe the model parameters should be close to each other: $\forall i,w_i^{(A)}$ should be close to $w_i^{(B)}$. We can leverage this information through regularization.
+			\pause
+			\item Specifically, we can use a parameter norm penalty of the form: $\Omega(\bm{w}^{(A)}, \bm{w}^{(B)})=\lVert\bm{w}^{(A)}-\bm{w}^{(B)}\rVert^2_2$. Here we used an $L^2$ penalty, but other choices are also possible.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Tying and Parameter Sharing}
+		\begin{itemize}
+			\item This kind of approach was proposed by \citet{lasserre2006principled}, who regularized the parameters of one model, trained as a classifier in a supervised paradigm, to be close to the parameters of another model, trained in an unsupervised paradigm (to capture the distribution of the observed input data).
+			\pause
+			\item The architectures were constructed such that many of the parameters in the classifier model could paired to corresponding parameters in the unsupervised model.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Tying and Parameter Sharing}
+		\begin{itemize}
+			\item While a parameter norm penalty is one way to regularize parameters to be close to one another, the more popular way is to use constraints: \textbf{to force sets of parameters to be equal}. 
+			\pause
+			\item This method of regularization is often referred to as \emph{parameter sharing}, where we interpret the various models or model components as sharing a unique set of parameters.
+			\pause
+			\item A significant advantage of parameter sharing over regularizing the parameters to be close (via a norm penalty) is that only a subset of the parameters need to be stored in memory.
+			\pause
+			\item In certain models- such as the Convolutional Neural Network -- this can lead to significant reduction in the memory footprint of the model.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Parameter Tying and Parameter Sharing\\ Convolutional Neural Networks}
+		\begin{itemize}
+			\pause
+			\item By far the most popular and extensive use of parameter sharing occurs in \emph{convolutional neural networks} (CNNs) applied to computer vision.
+			\pause
+			\item Natural images have many statistical properties that are invariant to translation.
+			\pause
+			\item CNNs take this property into account by sharing parameters across multiple image locations.
+			\pause
+			\item The same feature (a hidden unit with the same weights) is computed over different locations in the input. 
+			\pause
+			\item This means that we can find a object with the same object detector whether the object appears at column $i$ or column $i+1$ in the image.
+			\pause
+			\item Parameter sharing has allowed CNNs to dramatically lower the number of unique model parameters and to significantly increase network sizes without requiring a corresponding increase in training data.
+		\end{itemize}
+	\end{frame}
+		
 	\begin{frame}[allowframebreaks]{References}
 		\bibliography{Chap7}
 		\bibliographystyle{plainnat}
