@@ -543,9 +543,9 @@
 		\begin{itemize}
 			\item For small $\eta$, the minimization of $J$ with added weight noise (with covariance $\eta\bm{I}$) is equivalent to minimization of $J$ with an additional regularization.
 			\pause
-			\item This form of regularization encourages the parameters to go to regions of parameter space where small pertubations of the weights have a relatively small influence on the output.
+			\item This form of regularization encourages the parameters to go to regions of parameter space where small perturbations of the weights have a relatively small influence on the output.
 			\pause
-			\item In other words, it pushes the model weights, finding points that are not merely minima, but minima surrounded by flat regions (\citet{hochreiter1995simplifying}).
+			\item In other words, it pushes the model weights, finding points that are not merely minimal, but minimal surrounded by flat regions (\citet{hochreiter1995simplifying}).
 		\end{itemize}
 	\end{frame}
 	
@@ -565,6 +565,18 @@
 		\begin{itemize}
 			\item In the paradigm of semi-supervised learning, both unlabeled examples from $P(\bm{x})$ and labeled examples from $P(\bm{x},\bm{y})$ are used to estimate $P(\bm{y|\bm{x}})$ or predict $\bm{y}$ from $\bm{x}$.
 			\pause
+			\item In the context of deep learning, semi-supervised learning usually refers to learning a representation $\bm{h=f(\bm{x})}$. The goal is to learn a representation so that \textbf{examples from the same class have similar representations}.
+			\pause
+			\item Unsupervised learning can provide useful cues for \textbf{how to group examples in representations space}.
+			\pause
+			\item Examples that cluster tightly in the input space should be mapped to similar representations.
+			\pause
+			\item A linear classifier in the new space may achieve better generalization in many cases.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Semi-Supervised Learning}
+		\begin{itemize}
 			\item One can construct models in which a generative model of either $(\bm{x})$ or $P(\bm{x},\bm{y})$ shares parameters with a discriminative model of $P(\bm{y}|\bm{x})$.
 			\pause
 			\item The generative criterion then express a particular form of prior belief about the solution to the supervised learning problem, namely that the structure of $P(\bm{x})$ is connected to the structure of $P(\bm{y}|\bm{x})$ in a way that is captured by the shared parameterization.
@@ -577,8 +589,10 @@
 	
 	\begin{frame}{Multi-Task Learning}
 		\begin{itemize}
+			\pause
 			\item Multi-task learning is a way to improve generalization by pooling the examples arising out of several tasks.
-			\item In the same way that additional training examples put more pressure on the parameters of the model towards values that generalize well, when part of a model is shared across tasks, that part of the model is more constrained towards good values, often yielding better generalization.
+			\pause
+			\item In the same way that additional training examples put more pressure on the parameters of the model towards values that generalize well, when part of a model is shared across tasks, model often yield better generalization.
 		\end{itemize}
 	\end{frame}
 	
@@ -602,6 +616,66 @@
 				\end{figure}
 			\end{columns}
 			\item The factors that explain the variations are shared across two or more tasks.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item When training large models with sufficient representational capacity to overfit the task, we often observe that training error decreases steadily over time, but validation set error begins to rise again.
+			\begin{figure}
+				\includegraphics[height=8em]{figures/training-curve-overfit.png}
+			\end{figure}
+			\pause
+			\item This behavior occurs very reliably.
+			\pause
+			\item This means we can obtain a model with better validation set error (hopefully better test set error) by returning to the parameter setting at the point in time with the lowest validation set error.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item Every time the error on the validation set improves, we store a copy of the model parameters.
+			\pause
+			\item When the training algorithm terminates, we return these parameters, rather the latest parameters.
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Early Stopping}
+		\begin{algorithm}[H]
+			\caption{Early Stopping Algorithm}
+			\label{alg:early-stopping}
+			\begin{algorithmic}
+				\pause
+				\STATE Let $n$ be the number of steps between evaluations.
+				\STATE Let $p$ be the "patience", the number of times to observe worsening validation set error before giving up.
+				\STATE Let $\bm{\theta_o}$ be the initial parameters.
+				\STATE $\bm{\theta}\leftarrow\bm{\theta_o}$; $i\leftarrow0$; $j\leftarrow0$; $v\leftarrow\infty$; $i^*\leftarrow i$
+				\WHILE{$j<p$}
+					\STATE Update $\bm{\theta}$ by running the training algorithm for $n$ steps.
+					\STATE $i\leftarrow i+n$; $v'\leftarrow\text{ValidationSetError}(\bm{\theta})$
+					\IF{$v'<v$}
+						\STATE $j\leftarrow0$; $\bm{\theta^*\leftarrow\bm{\theta}}$; $i^*\leftarrow i$; $v\leftarrow v'$
+					\ELSE
+						\STATE $j\leftarrow j+1$
+					\ENDIF
+				\ENDWHILE
+				\STATE Best parameters are $\bm{\theta^*}$, best number of training steps is $i^*$.
+			\end{algorithmic}
+		\end{algorithm}
+	\end{frame}
+
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item One way to think of early stopping is as a very efficient hyperparameter selection algorithm.
+			\item In this view, the number of training steps is just another hyperparameter.
+			\item The only significant cost to choosing this hyperparameter automatically via early stopping is running the validation set evaluation periodically during training.
+			\item An additional cost to early stopping is the need to maintain a copy of the best parameters. This cost is generally negligible. (GPU->CPU/MEMORY->HDD).
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Early Stopping}
+		\begin{itemize}
+			\item How early stopping acts as a regularizer?
 		\end{itemize}
 	\end{frame}
 	
