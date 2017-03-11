@@ -845,7 +845,198 @@
 
 	\begin{frame}{Sparse Representation}
 		\begin{itemize}
-			内容...
+			\pause
+			\item Weight decay acts by placing a penalty directly on the model parameters.
+			\pause
+			\item Another strategy is to place a penalty on the activations of the units in a neural network, encouraging their activations to be sparse.
+			\pause
+			\item This indirectly imposes a complicated penalty on the model parameters.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Sparse Representation}
+		\begin{itemize}
+			\item We have already discussed how $L^1$ penalization induces a sparse parametrization -- meaning that many of the parameters become zero (or close to zero).
+			\pause
+			\item Representational sparsity, on the other hand, describes a representation where many of the elements of the representation are zero (or close to zero).
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Sparse Representation}
+		\begin{itemize}
+			\item A simplified view of this distinction can be illustrated in the context of linear regression:
+			\pause
+			\begin{align*}
+			\underset{\bm{y} ~\in~ \mathbb{R}^m}{
+				\begin{bmatrix}
+				18 \\  5 \\ 15 \\ -9 \\ -3
+				\end{bmatrix}} = 
+			\underset{\mathbf{A} ~\in~ \mathbb{R}^{m \times n}}{
+				\begin{bmatrix}
+				4 & 0 & 0 & -2 & 0 & 0 \\
+				0 & 0 & -1 & 0 & 3 & 0 \\
+				0 & 5 & 0 & 0 & 0 & 0 \\
+				1 & 0 & 0 & -1 & 0 & -4 \\
+				1 & 0 & 0 & 0 & -5 & 0
+				\end{bmatrix}} 
+			\underset{\bm{x} ~\in~ \mathbb{R}^n}{
+				\begin{bmatrix}
+				2 \\ 3\\ -2\\ -5 \\ 1 \\ 4
+				\end{bmatrix} }\\
+			\underset{\bm{y} ~\in~ \mathbb{R}^m}{
+				\begin{bmatrix}
+				-14 \\  1 \\ 19 \\  2 \\ 23
+				\end{bmatrix}} = 
+			\underset{\mathbf{B} ~\in~ \mathbb{R}^{m \times n}}{
+				\begin{bmatrix}
+				3 & -1 & 2 & -5 & 4 & 1 \\
+				4 & 2 & -3 & -1 & 1 & 3 \\
+				-1 & 5 & 4 & 2 & -3 & -2 \\
+				3 & 1 & 2 & -3 & 0 & -3 \\
+				-5 & 4 & -2 & 2 & -5 & -1
+				\end{bmatrix}} 
+			\underset{\bm{h} ~\in~ \mathbb{R}^n}{
+				\begin{bmatrix}
+				0 \\ 2 \\ 0 \\ 0 \\ -3 \\ 0
+				\end{bmatrix} }
+			\end{align*}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Sparse Representation}
+		\begin{itemize}
+			\item Representational regularization is accomplished by the same sorts of mechanisms that we have used in parameter regularization.
+			\pause			
+			\item Norm penalty regularization of representation is performed by adding to the loss function $J$ a norm penalty on the \textbf{representation}. This penalty is denoted $\Omega(\bm{h})$. As before, we denote the regularized loss function by $\tilde{J}$:
+			$$\tilde{J}(\bm{\theta};\bm{X},\bm{y})=J(\bm{\theta};\bm{X},\bm{y})+\alpha\Omega(\bm{h})$$
+			
+			\pause
+			\item Just as an $L^1$ penalty on the parameters induces parameter sparsity, an $L^1$ penalty on the elements of the representation induces representational sparsity:
+			$$\Omega(\bm{h})=\lVert\bm{h}\rVert_1=\sum_i\left|h_i\right|$$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Sparse Representation}
+		\begin{itemize}
+			\item Of course, the $L^1$ penalty is only one choice of penalty that can result in a sparse representation.
+			\pause
+			\item Others include the penalty derived from a Student-t prior on the representation (\citet{olshausen2005close,bergstra2011algorithms}) and KL divergence penalties (\citet{larochelle2008classification}) that are especially useful for representations with elements constrained to lie on the unit interval.
+			\pause
+			\item \citet{lee2008sparse} and \citet{goodfellow2009measuring} both provide examples of strategies based on regularizing the average activation across several examples, $\frac{1}{m}\sum_i\bm{h}^{(i)}$, to be near some target value, such as a vector with 0.01 for each entry.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Sparse Representation}
+		\begin{itemize}
+			\item Other approaches obtain representational sparsity with a hard constraint on the activation values.
+			\pause
+			\item For example, \emph{orthogonal matching pursuit} (\citet{pati1993orthogonal}) encodes an input $\bm{x}$ with representation $\bm{h}$ that solves the constrained optimization problem
+			$$\mathop{\arg\min}_{\bm{h},\lVert\bm{h}\rVert_0<k}\lVert\bm{x}-\bm{Wh}\rVert^2$$
+			where $\lVert\bm{h}\rVert_0$ is the number of non-zero entries of $\bm{h}$. 
+			
+			\pause
+			\item This problem can be solved efficiently when $\bm{W}$ is constrained to be orthogonal.
+			\pause
+			\item This method is often called OMP-$k$ with the value of $k$ specified to indicate the number of non-zero features allowed.
+			\pause
+			\item \citet{coates2010analysis} demonstrated that OMP-1 can be very a effective feature extractor for deep architectures.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{itemize}
+			\pause
+			\item Bagging(short for boostrap aggregating) is a technique for reducing generalization error by combining several models (\citet{breiman1996bagging}).
+			\pause
+			\item The idea is to train several different models separately, then have all of the models vote on the output for test examples.
+			\pause
+			\item Thi is an example of a general strategy in machine learning called \emph{model averaging}.
+			\pause
+			\item Techniques employing this strategy are known as \emph{ensemble methods}.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{itemize}
+			\item The reason that model averaging works is that different models will usually not make all the same errors on the test set.
+			\pause
+			\item Consider for example a set of $k$ regression models. 
+			\pause
+			\item Suppose that each model makes an error $\epsilon_i$ on each example, with the errors drawn from a zero-mean multivariate normal distribution with variance $\mathbb{E}[\epsilon_u^2]=v$ and covariance $\mathbb{E}[\epsilon_i\epsilon_j]=c$.
+			\pause
+			\item Then the error made by the average prediction of all the ensemble models is $\frac{1}{k}\sum_i\epsilon_i$.
+			\pause
+			\item The expected squared error of the ensemble predictor is
+			$$\mathbb{E}\left[\left(\frac{1}{k}\sum_i\epsilon_i\right)^2\right]=\frac{1}{k^2}\mathbb{E}\left[\sum_i\left(\epsilon_i^2+\sum_{i\neq j}\epsilon_i\epsilon_j\right)\right]=\frac{1}{k}v+\frac{k-1}{k}c$$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		$$\mathbb{E}\left[\left(\frac{1}{k}\sum_i\epsilon_i\right)^2\right]=\frac{1}{k}v+\frac{k-1}{k}c$$
+		\begin{itemize}
+			\item In the case where the errors are perfectly correlated and $c=v$, the mean squared error reduces to $v$, so the model average does not help at all.
+			\pause
+			\item In the case where the errors are perfectly uncorrelated and $c=0$, the expected squared error of the ensemble is only $\frac{1}{k}v$. This means that the expected squared error of the ensemble decreases linearly with the ensemble size.
+			\pause
+			\item In other words, on average, the ensemble will perform at least as well as any of its members, and if the members make independent errors, the ensemble will perform significantly better than it members.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{itemize}
+			\item Different ensemble methods construct the ensemble of the models in different ways.
+			\pause
+			\item For example, each member of the ensemble could be formed by training a completely different kind of model using a different algorithm or objective function.
+			\pause
+			\item Bagging is a method that allows the same kind of model, training algorithm and objective function to be reused several times.
+			\pause
+			\item Specifically, bagging involves constructing $k$ different datasets.
+			\pause
+			\item Each dataset has the same number of examples as the original dataset, but each dataset is constructed by sampling with replacement from the origin dataset.
+			\pause
+			\item This means that, with high probability, each dataset is missing some of the examples from the original dataset and also contains several duplicate examples.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{figure}
+			\includegraphics[height=15em]{figures/bagging.png}
+			\caption{A cartoon depiction of how bagging works}
+		\end{figure}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{itemize}
+			\item Neural networks reach a wide enough variety of solution points that they can often benefit from model averaging even if all of the models are trained on the same dataset.
+			\pause
+			\item Differences in random initialization, random selection of minibatches, differences in hyperparameters, or different outcomes of non-deterministic implementations of neural networks are often enough to cause different members of the ensemble to make partially independent errors.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{itemize}
+			\item Model averaging is an extremely powerful and reliable method for reducing generalization error.
+			\pause
+			\item Its use is usually discouraged when benchmarking algorithms for scientific papers.
+			\pause
+			\item Machine learning contest are usually won by methods using model averaging over dozens of models.
+			\pause
+			\item Not all techniques for constructing ensembles are designed to make the ensemble more regularized than the individual models.
+			\pause
+			\item For example, a technique called \emph{boosting} (\citet{freund1996experiments}) constructs an ensemble with higher capacity than the individual models. 
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Bagging and Other Ensemble Methods}
+		\begin{itemize}
+			\item Boosting has been applied to build ensembles of neural networks (\citet{schwenk1998training}) by incrementally adding neural networks to the ensemble.
+			\item Boosting has also been applied interpreting an individual neural network as an ensemble (\citet{bengio2006convex}), incrementally adding hidden units to the neural network.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Dropout (\citep{srivastava2014dropout}) provides a computationally inexpensive but powerful method of regularizing a broad family of models.
 		\end{itemize}
 	\end{frame}
 		
