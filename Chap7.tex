@@ -1115,6 +1115,88 @@
 		\end{itemize}
 	\end{frame}
 	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Dropout training is not quite the same as bagging traing.
+			\pause
+			\item In the case of bagging, the models are all independent.
+			\pause
+			\item In the case of dropout, the models share parameters, with each model inheriting a different subset of parameters from the parent neural network. This parameter sharing makes it possible to represent an exponential number of models with a tractable amount of memory.
+			\pause
+			\item In the case of bagging, each model is trained to convergence on its respective training set.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item In the case of dropout, typically most models are not explicitly trained at all--usually, the model is large enough that it would be infeasible to sample all possible subnetworks within the lifetime of the universe.
+			\pause
+			\item Instead, a tiny fraction of the possible sub-networks are each trained for a single step, and the parameter sharing causes the remaining sub-networks to arrive at good settings of the parameters.
+			\pause
+			\item Beyond these, dropout follows the bagging algorithm.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item To make a prediction, a bagged ensemble must accumulate votes from all of its members. We refer to this process as \emph{inference} in this context.
+			\pause
+			\item Now, we assume that the model's role is to output a probability distribution.
+			\pause
+			\item In the case of bagging, each model $i$ produces a probability distribution $p^{(i)}(y|\bm{x})$. 
+			\pause
+			\item The prediction of the ensemble is given by the arithmetic mean of all of these distributions
+			$$\frac{1}{k}\sum_{i=1}^kp^{(i)}(y|\bm{x})$$			
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item In the case of dropout, each sub-model defined by mask vector $\bm{\mu}$ defines a probability distribution $p(y|\bm{x},\bm{\mu})$.
+			\pause
+			\item The arithmetic mean over all masks is given by
+			$$\sum_{\bm{\mu}} p(\bm{\mu})p(y|\bm{x},\bm{\mu})$$
+			
+			where $p(\bm{\mu})$ is the probability distribution that was used to sample $\mu$ at training time.
+			\pause
+			\item Because this sum includes an exponential number of terms, it is intractable to evaluate except in cases where the structure of the model permits some form of simplification.
+			\pause
+			\item We can approximate the inference with sampling, by averaging together the output from many masks.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item However, there is an even better approach, that allows us to obtain a good approximation to the predictions of the entire ensemble, at the cost of only one forward propagation.
+			\pause
+			\item To do so, we change to using the geometric mean rather than the arithmetic mean of the ensemble member's prediction distributions.
+			\pause
+			\item \citet{warde2013empirical} present arguments and empirical evidence that the geometric mean performs comparably to the arithmetic mean in this context.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item The geometric mean of multiple probability distributions is not guaranteed to be a probability distribution.
+			\pause
+			\item To guarantee that the result is a probability distribution, we impose the requirement that none of the sub-models assigns probability 0 to any event, and we renormalize the resulting distribution.
+			\pause
+			\item The unnormalized probability distribution defined directly by the geometric mean is given by
+			$$\tilde{p}_{\text{ensemble}}(y|\bm{x})=\sqrt[2^d]{\prod_{\bm{\mu}}p(y|\bm{x},\bm{\mu})}$$
+			
+			where $d$ is the number of units that may be dropped.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Here we use a uniform distribution over $\bm{\mu}$ to simplify the presentation, but non-uniform distributions are also possible.
+			\pause
+			\item To make predictions we must re-normalize the ensemble:
+			$$p_{\text{ensemble}}(y|\bm{x})=\frac{\tilde{p}_{\text{ensemble}}(y|\bm{x})}{\sum_{y'}\tilde{p}_{\text{ensemble}}(y'|\bm{x})}$$
+		\end{itemize}
+	\end{frame}
+	
 	\begin{frame}[allowframebreaks]{References}
 		\bibliography{Chap7}
 		\bibliographystyle{plainnat}
