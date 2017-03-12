@@ -1038,9 +1038,83 @@
 	\begin{frame}{Dropout}
 		\begin{itemize}
 			\item Dropout (\citep{srivastava2014dropout}) provides a computationally inexpensive but powerful method of regularizing a broad family of models.
+			\pause
+			\item Dropout can be thought of as a method of making bagging practical for ensembles of very many large neural networks.
+			\pause
+			\item Bagging involves training multiple models, and evaluating multiple models on each test example. 
+			\pause 
+			\item This seems impractical when each model is a large neural network, since training and evaluating such networks is costly in terms of runtime and memory.
+			\pause
+			\item It is common to use ensembles of five to ten neural networks. but more than this rapidly becomes unwieldy.
+			\pause
+			\item Dropout provides an inexpensive approximation to training and evaluating a bagged ensemble of exponentially many neural networks.
 		\end{itemize}
 	\end{frame}
-		
+	
+	\begin{frame}{Dropout}
+		Specifically, dropout trains the ensemble consisting of all sub-networks that can be formed by removing non-output units from an underlying base network.
+		\begin{columns}
+			\column{0.6\textwidth}
+			\begin{itemize}
+				\item In the most modern neural networks, based on a series of affine transformations and nonlinearities, we can effectively remove a unit from a network by multiplying its output value by zero. 
+				\item This procedure requires some slight modification for models such as radial basis function networks, which take the difference between the unit's state and some reference value.
+			\end{itemize}
+			\column{0.4\textwidth}
+			\begin{figure}
+				\includegraphics[height=13em]{figures/dropout.png}
+			\end{figure}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Here, we present the dropout algorithm in terms of multiplication by zero for simplicity, but it can be trivially modified to work with other operations that remove a unit from the network.
+			\pause
+			\item Recall that to learn with bagging, we define $k$ different models, construct $k$ different datasets by sampling from the training set with replacement, and then train model $i$ on dataset $i$.
+			\pause
+			\item Dropout aims to approximate this process, but with an exponentially large number of neural networks.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Specifically, to train with dropout, we use a minibatch-based learning algorithm that makes small steps, such as stochastic gradient descent.
+			\pause
+			\item Each time we load an example into a minibatch, we randomly sample a different binary mask to apply to all of the input and hidden units in the network.
+			\pause
+			\item The mask for each unit is sampled independently from all of the others. 
+			\pause
+			\item The probability of sampling a mask value of one is a hyperparameter fixed before training begins.
+			\pause
+			\item Typically, an input unit is included with probability 0.8 and a hidden unit is included with probability 0.5.
+			\pause
+			\item We then run forward propagation, back-propagation, and the learning update as usual.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{columns}
+			\column{0.5\textwidth}
+			\begin{figure}
+				\includegraphics[height=12em]{figures/dropout-computation-graph-1.png}
+			\end{figure}
+			\column{0.5\textwidth}
+			\begin{figure}
+				\includegraphics[height=17em]{figures/dropout-computation-graph-2.png}
+			\end{figure}
+		\end{columns}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item More formally, suppose that a mask vector $\mu$ specifies which units to include, and $\bm{J}(\bm{\theta},\bm{\mu})$ defines the cost of the model defined by parameters $\bm{\theta}$ and mask $\bm{\mu}$.
+			\pause
+			\item Then dropout training consists in minimizing $\mathbb{E}_{\bm{\mu}}\bm{J}(\bm{\theta},\bm{\mu})$.
+			\pause
+			\item The expectation contains exponentially many terms but we can obtain an unbiased estimate of its gradient by sampling values of $\mu$
+		\end{itemize}
+	\end{frame}
+	
 	\begin{frame}[allowframebreaks]{References}
 		\bibliography{Chap7}
 		\bibliographystyle{plainnat}
