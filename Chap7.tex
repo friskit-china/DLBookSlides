@@ -1194,6 +1194,179 @@
 			\pause
 			\item To make predictions we must re-normalize the ensemble:
 			$$p_{\text{ensemble}}(y|\bm{x})=\frac{\tilde{p}_{\text{ensemble}}(y|\bm{x})}{\sum_{y'}\tilde{p}_{\text{ensemble}}(y'|\bm{x})}$$
+			
+			\pause
+			\item The key insight (\citet{hinton2012improving}) involved in dropout is that we can approximate $p_{\text{ensemble}}$ by evaluating $p(y|\bm{x})$ in one model: the model with all units, but with the weight going out of unit $i$ multiplied by the probability of including unit $i$.
+			\pause
+			
+			\item We call this approach the \emph{weight scaling inference rule}.
+			\pause
+			\item There is not yet any theoretical argument for the accuracy of this approximate inference rule in deep nonlinear networks, but empirically it performs very well.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Because we usually use an inclusion probability of $\frac{1}{2}$, the weight scaling rule usually amounts to dividing the weights by 2 at the end of training, and then using the model as usual.
+			\pause
+			\item Another way to achieve the same result is to multiply the states of the units by 2 during training.
+			\pause
+			\item Either way, the goal is to make sure that the expected total input to a unit at test time is roughly the same as the expected total input to that unit at train time, even though half the units at train time are missing on average.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item For many classes of models that do not have nonlinear hidden units, the weight scaling inference rule is exact.
+			\pause
+			\item For a simple example, consider a softmax regression classifier with $n$ input variables represented by the vector $\bm{\mathrm{v}}$:
+			$$P(\mathrm{y}=y|\bm{\mathrm{v}})=\mathrm{softmax}(\bm{\mathrm{W}}^T\bm{\mathrm{v}}+\bm{b})_y$$
+			
+			\pause
+			\item We can index into the family of sub-models by element-wise multiplication of the input with a binary vector $d$:
+			$$P(\mathrm{y}=y|\bm{\mathrm{v}};\bm{d})=\mathrm{softmax}(\bm{\mathrm{W}}^T(\bm{d}\odot\bm{\mathrm{v}})+\bm{b})_y$$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item The ensemble predictor is defined by re-normalizing the geometric mean over all ensemble members' predictions
+			$$P_{\text{ensemble}}(\mathrm{y}=y|\bm{\mathrm{v}})=\frac{\tilde{P}_{\text{ensemble}}(\mathrm{y}=y|\bm{\mathrm{v}})}{\sum_{y'}\tilde{P}_{\text{ensemble}}(\mathrm{y}=y'|\bm{v})}$$
+			
+			where
+			$$\tilde{P}_{\text{ensemble}}(\mathrm{y}=y|\bm{v})=\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}P(\mathrm{y}=y|\bm{\mathrm{v}};\bm{d})}$$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item To see that the weight scaling rule is exact, we can simplify 
+			\pause
+			\begin{eqnarray*}
+				\tilde{P}_{\text{ensemble}}\left(\mathrm{y}=y|\bm{\mathrm{v}}\right)&=&\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}P\left(\mathrm{y}=y|\bm{\mathrm{v}};\bm{d}\right)}\\
+				&=&\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}\text{softmax}\left(\bm{\mathrm{W}}^T(\bm{d}\odot\bm{\mathrm{v}})+\bm{b}\right)_y}\\
+				&=&\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}\frac{\exp\left(\bm{\mathrm{W}}^T_{y,:}\left(\bm{d}\odot\bm{\mathrm{v}}\right)+\bm{b}\right)}{\sum_{y'}\exp\left(\bm{\mathrm{W}}^T_{y',:}\left(\bm{d}\odot\bm{\mathrm{v}}\right)+\bm{b}\right)}}\\
+				&=&\frac{\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}\exp\left(\bm{\mathrm{W}}^T_{y,:}\left(\bm{d}\odot\bm{\mathrm{v}}\right)+\bm{b}\right)}}{\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}\sum_{y'}\exp\left(\bm{\mathrm{W}}^T_{y',:}\left(\bm{d}\odot\bm{\mathrm{v}}\right)+\bm{b}\right)}}
+			\end{eqnarray*}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item Because $\tilde{P}$ will be normalized, we can safely ignore multiplication by factors that are constant with respect to $y$:
+			\pause
+			\begin{eqnarray*}
+				\tilde{P}_{\text{ensemble}}(\mathrm{y}=y|\bm{\mathrm{v}})&\propto&\sqrt[2^n]{\prod_{\bm{d}\in\{0,1\}^n}\exp\left(\bm{\mathrm{W}}^T_{y,:}\left(\bm{d}\odot\bm{\mathrm{v}}\right)+\bm{b}\right)}\\
+				&=&\exp\left(\frac{1}{2^n}\sum_{\bm{d}\in\{0,1\}^n}\bm{\mathrm{W}}^T_{y,:}\left(\bm{d}\odot\bm{\mathrm{v}}\right)+\bm{b}\right)\\
+				&=&\exp\left(\frac{1}{2}\bm{\mathrm{W}}^T_{y,:}\bm{\mathrm{v}}+\bm{b}\right)
+			\end{eqnarray*}
+			\pause
+			\item Substituting this back into $P_{\text{ensemble}}(\mathrm{y}=y|\bm{\mathrm{v}})=\frac{\tilde{P}_{\text{ensemble}}(\mathrm{y}=y|\bm{\mathrm{v}})}{\sum_{y'}\tilde{P}_{\text{ensemble}}(\mathrm{y}=y'|\bm{v})}$ we obtain a softmax classifier with weights $\frac{1}{2}\bm{\mathrm{W}}$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item The weight scaling rule is also exact in other settings, including regression networks with conditionally normal outputs, and deep networks that have hidden layers without nonlinearities.
+			\pause
+			\item However, the weight scaling rule is only a approximation for deep models that have nonlinearities.
+			\pause
+			\item Though the approximation has not been theoretically characterized, it often works well, empirically.
+			\pause
+			\item \citet{goodfellow2013maxout} found experimentally that the weight scaling approximation can work better (in terms of classification accuracy) than Monte Carlo approximations to the ensemble predictor.
+			\pause
+			\item This held true even when the Monte Carlo approximation was allowed to sample up to 1,000 sub-networks.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item \citet{gal2015bayesian} found that some models obtain better classification accuracy using twenty samples and the Monte Carlo approximation. It appears that the optimal choice of inference approximation is problem-depend.
+			\pause
+			\item \citet{srivastava2014dropout} showed that dropout is more effective than other standard computationally inexpensive regularizers, such as weight decay, filter norm constraints and sparse activity regularization.
+			\pause
+			\item One advantage of dropout is that it is very computationally cheap.
+			\pause
+			\item Another significant advantage of dropout is that it does not significantly limit the type of model or training procedure that can be used.
+			\pause
+			\item This includes feedforward neural networks, probabilistic models such as restricted Boltzmann machines (\citet{srivastava2014dropout}), and recurrent neural networks (\citet{bayer2014learning,pascanu2013construct}).
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item \citet{wager2013dropout} showed that, when applied to linear regression, dropout is equivalent to $L^2$ weight decay, with a different weight decay coefficient for each input feature.
+			\pause
+			\item The magnitude of each feature's weight decay coefficient is determined by its variance.
+			\pause
+			\item Similar results hold for other linear models.
+			\pause
+			\item For deep models, dropout is not equivalent to weight decay.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Dropout}
+		\begin{itemize}
+			\item The power of dropout arises from the fact that the masking noise is applied to the hidden units.
+			\pause
+			\item This can be seen as a form of highly intelligent, adaptive destruction of the information content of the input rather than destruction of the raw values of the input.
+			\pause
+			\item For example, if the model learns a hidden unit $h_i$ that detects a face by finding the nose, then dropping $h_i$ corresponds to erasing the information that there is a nose in the image.
+			\pause
+			\item The model must learn another $h_i$, either that redundantly encodes the presence of a nose, or that detects the face by another feature, such as the mouth.
+			\pause
+			\item Destroying extracted features rather than original values allows the destruction process to make use of all of the knowledge about the input distribution that the model has acquired so far.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Adversarial Training}
+		\begin{itemize}
+			\item Im many cases, neural networks have begun to reach human performance when evaluated on an i.i.d. test set. It is natural there fore to wonder whether these models have obtained a true human-level understanding of these tasks.
+			\pause
+			\item In order to probe the level of understanding a network has of the underlying task, we can search for examples that the models misclassifies.
+			\pause
+			\item \citet{szegedy2013intriguing} found that even neural networks that perform at human level accuracy have a nearly 100\% error rate on examples that are intentionally constructed by using an optimization procedure to search for an input $\bm{x'}$ near a data point $\bm{x}$ such that the model output is very different at $\bm{x'}$
+			\pause
+			\item In many cases, $\bm{x'}$ can be so similar to $\bm{x'}$ that a human observer cannot tell the difference between the original example and the \emph{adversarial example}, but the network can make highly different predictions.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Adversarial Training}
+		\begin{figure}
+			\includegraphics[height=15em]{figures/adversarial-example.png}
+		\end{figure}
+	\end{frame}
+	
+	\begin{frame}{Adversarial Training}
+		\begin{itemize}
+			\item Adversarial examples are interesting in the context of regularization because on can reduce the error rate on the original i.i.d. test set via \emph{adversarial training}-- training on adversarially perturbed examples from from the training set.
+			\pause
+			\item \citet{goodfellow2013multi} showed that one of the primary causes of these adversarial examples is excessive linearity.
+			\pause
+			\item Neural networks are built out of primarily linear building blocks.
+			\pause
+			\item In some experiments the overall function they implement proves to be highly linear as a result.
+			\pause
+			\item Unfortunately, the value of a linear function can change very rapidly if it has numerous inputs.
+			\pause
+			\item If we change each input by $\epsilon$, then a linear function with weights $\bm{w}$ can change by as much as $\epsilon\lVert\bm{w}\rVert_1$, which can be a very large amount if $\bm{w}$ is high-dimensional.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Adversarial Training}
+		\begin{itemize}
+			\item Adversarial training discourages this highly sensitive locally linear behavior by encouraging the network to be locally constant in the neighborhood of the training data.
+			\pause
+			\item This can be seen as a way of explicitly introducing a local constancy prior into supervised neural networks.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Tangent Distance, Tangent Prop, and Manifold Tangent Classifier}
+		\begin{itemize}
+			\item The \emph{tangent prop} algorithm (\citet{simard1991tangent}) trains a neural net classifier with an extra penalty to make each output $f(\bm{x})$ of the neural net locally invariant to known factors of variation.
+			\pause
+			\item The directional derivative of $f$ at $\bm{x}$ in the directions $\bm{v}^{(i)}$ be small by adding a regularization penalty $\Omega$:
+			$$\Omega(f)=\sum_i\left(\left(\nabla_{\bm{x}}f(\bm{x})\right)^2\bm{v}^{(i)}\right)^2$$
 		\end{itemize}
 	\end{frame}
 	
