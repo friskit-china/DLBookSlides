@@ -95,7 +95,7 @@
 			\pause
 			\item What this means is that controlling the complexity of the model is not a simple matter of finding the model of the \textbf{right size}, with the \textbf{right number of parameters}.
 			\pause
-			\item Insteamd, we might find that the best fitting model is a large model that has been regularized appropriately.
+			\item Instead, we might find that the best fitting model is a large model that has been regularized appropriately.
 			\pause
 			\item We now review several strategies for how to create such a large, deep, regularized model.
 		\end{itemize}
@@ -103,6 +103,7 @@
 	
 	\begin{frame}{Parameter Norm Penalties}
 		\begin{itemize}
+			\pause
 			\item Regularization has been used for decades prior to the advent of deep learning.
 			\pause
 			\item Linear models allow simple straightforward and effective regularization strategies.
@@ -130,15 +131,19 @@
 			\item We therefore use the vector $\bm{w}$ to indicate all of the weights that should be affected by a norm penalty, while the vector $\bm{\theta}$ denotes all of the parameters, including both $\bm{w}$ and the unregularized parameters.
 			\pause
 			\item Sometime we use a separate penalty with a different $\alpha$ coefficient for each layer.
+			\pause
 			\item But it can be expensive to search for the correct value of multiple hyper-parameters, it is still reasonable to use the same weight decay at all layers just to reduce the size of search space.
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{$L^2$ Parameter Regularization}
 		\begin{itemize}
+			\pause
 			\item The $L^2$ norm penalty commonly known as \emph{weight decay}.
+			\pause
 			$$\Omega(\bm{\theta})=\frac{1}{2}\lVert w\rVert^2_2$$
 			
+			\pause
 			\item This regularization strategy drives the weights closer to the origin. (as well as \emph{ridge regression} or \emph{Tikhonov regularization})
 			\pause
 			\item We can gain some insight into the behavior of weight decay regularization. (assume no bias for simplification)
@@ -152,6 +157,7 @@
 
 			\pause
 			\item Shrink the weight vector by a constant factor on each step.
+			\pause
 			\item What happens over the entire course of training?
 		\end{itemize}
 	\end{frame}
@@ -250,6 +256,12 @@
 			\pause
 			\item At the point $\tilde{\bm{w}}$, these competing objectives reach an equilibrium.
 		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{$L^2$ Parameter Regularization}
+		\begin{figure}
+			\includegraphics[height=15em]{figures/bias-variance.jpg}
+		\end{figure}
 	\end{frame}
 
 	\begin{frame}{$L^2$ Parameter Regularization}
@@ -386,7 +398,7 @@
 			$$\tilde{J}(\bm{\theta};\bm{X},\bm{y})=J(\bm{\theta};\bm{X},\bm{y})+\alpha\Omega(\bm{\theta})$$
 			
 			\pause
-			\item If we want to constrain $\Omega(\bm{\theta})$ to be less than some constant $k$, we could construct a generalized Language function
+			\item If we want to constrain $\Omega(\bm{\theta})$ to be less than some constant $k$, we could construct a generalized Lagrange function
 			$$\mathcal{L}(\bm{\theta,\alpha;\bm{X},\bm{y}})=J(\bm{\theta};\bm{X},\bm{y})+\alpha(\Omega(\theta)-k)$$
 			
 			\pause
@@ -406,6 +418,23 @@
 			\item All positive $\alpha$ encourage $\Omega(\bm{\theta})$ to shrink.
 			\pause
 			\item The optimal value $a^*$ will encourage $\Omega(\theta)$ to shrink, but not so strongly to make $\Omega(\bm{\theta})$ become less than $k$.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Norm Penalties as Constrained Optimization}
+		\begin{itemize}
+			\item To gain some insight into the effect of the constraint, we can fix $\alpha^*$ and view the problem as just a function of $\theta$:
+			$$\bm{\theta}^*=\mathop{\arg\min}_{\bm{\theta}}\mathcal{L}(\bm{\theta}, \alpha^*)=\mathop{\arg\min}_{\bm{\theta}}J(\bm{\theta};\bm{X},\bm{y})+\alpha*\Omega(\bm{\theta})$$
+			
+			\item This is exactly the same as the regularized training problem of minimizing $\tilde{J}$.
+			
+			\pause
+			\item We can thus think of a parameter norm penalty as imposing a constraint on the weights.
+			\pause
+			\item If $\Omega$ is the $L^2$ norm, then the weights are constrained to lie in an $L^2$ ball.
+			\pause
+			\item If $\Omega$ is the $L^1$ norm, then the weights are constrained to lie in a region of limited $L^1$ norm.
+			
 		\end{itemize}
 	\end{frame}
 
@@ -434,6 +463,10 @@
 			\item If a weight vector $\bm{w}$ is able to achieve perfect classification, then $2\bm{w}$ will also achieve perfect classification and higher likelihood.
 			\pause
 			\item An iterative optimization procedure like SGD will continually increase the magnitude of $\bm{w}$ and, in theory, will never halt.
+			\pause
+			\item Most forms of regularization are able to guarantee the convergence of iterative methods applied to underdetermined problems.
+			\pause
+			\item For example, weight decay will cause gradient descent to quit increasing the magnitude of the weights when the slope of the likelihood is equal to the weight decay coefficient.
 		\end{itemize}
 	\end{frame}
 	
@@ -451,9 +484,10 @@
 
 	\begin{frame}{Dataset Augmentation}
 		\begin{itemize}
+			\pause
 			\item The best way to make a machine learning model generalize better is to train it on more data.
 			\pause
-			\item In practice, it is limited.
+			\item In practice, the amount of data we have is limited.
 			\pause
 			\item Create fake data and add it to the training set.
 			\pause
@@ -534,7 +568,6 @@
 				\tilde{J}_{\bm{W}}&=&\mathbb{E}_{p(\bm{x},y,\epsilon_{\bm{W}})}\left[(\hat{y}_{\epsilon_{\bm{w}}}(\bm{x})-y)^2\right]\\
 				&=&\mathbb{E}_{p(\bm{x},y,\epsilon_{\bm{W}})}\left[\hat{y}^2_{\epsilon_{\bm{W}}}(\bm{x}-2y\hat{y}_{\epsilon_{\bm{W}}}+y^2)\right]
 			\end{eqnarray*}
-			\pause
 		\end{itemize}
 	\end{frame}
 
@@ -726,7 +759,6 @@
 				\bm{w}^{(\tau)}&=&\bm{w}^{(\tau-1)}-\epsilon\nabla_{\bm{w}}J(\bm{w}^{(\tau-1)})\\
 				&=&\bm{w}^{(\tau-1)}-\epsilon\bm{H}(\bm{w}^{(\tau-1)}-\bm{w}^*)\\
 				\bm{w}^{(\tau)}-\bm{w}^*&=&(\bm{I}-\epsilon\bm{H})(\bm{w}^{(\tau-1)}-\bm{w}^*)
-				\pause
 			\end{eqnarray*}
 		\end{itemize}
 	\end{frame}
@@ -741,7 +773,7 @@
 			
 			\pause
 			\item Assuming that $\bm{w}^{(0)}=0$ and that $\epsilon$ is chosen to be small enough to guarantee $|1-\epsilon\lambda_i|<1$, the parameter trajectory during training training after $\tau$ parameter updates is as follows:
-			$$\bm{Q}^T\bm{w}^{(\tau)}=\left[\bm{I}-(\bm{I}-\epsilon\Lambda)^{\tau}\right]\bm{Q}^T\bm{w}^*$$.
+			$$\bm{Q}^T\bm{w}^{(\tau)}=\left[\bm{I}-(\bm{I}-\epsilon\Lambda)^{\tau}\right]\bm{Q}^T\bm{w}^*$$
 		\end{itemize}
 	\end{frame}
 	
