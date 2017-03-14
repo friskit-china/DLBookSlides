@@ -22,7 +22,7 @@
 	\title{Deep Learning Book}
 	\subtitle{Chapter 7 \\ Regularization for Deep Learning}
 	\author{Botian Shi \\ botianshi@bit.edu.cn}
-	\date{March 7, 2017}
+	\date{March 14, 2017}
 	
 	\setbeamercovered{transparent=15}
 	
@@ -36,13 +36,14 @@
 	
 	\begin{frame}{Generalization and Strategy}
 		\begin{itemize}
-			\item How to make an algorithm that will perform well not just on the training data, but also on new inputs?
+			\item How to make an algorithm that will perform well not just on the training data, but also on new inputs? (Generalization)
 			\pause
 			\item Many strategies designed to reduce the test error, possibly at the expense of increased training error.
 			\pause
 			\item These strategies are known collectively as \textbf{regularization}.
 			\pause
 			\item Many regularization algorithm have been developed.
+			\pause
 			\item Developing more effective regularization strategies is one of the major research efforts in the field.
 			\pause
 			\item In this chapter, we describe regularization in more detail, focusing on regularization strategies for deep models or models that may be used as building blocks to form deep models.
@@ -64,7 +65,7 @@
 			\item Sometimes these constraints and penalties are designed to
 			\begin{enumerate}
 				\item \textbf{encode} specific kinds of \textbf{prior knowledge}.
-				\item Express a generic preference for a simpler model class in order to promote generalization.
+				\item express a generic preference for a simpler model class in order to promote generalization.
 				\item make an under-determined problem determined. (Provide more information)
 			\end{enumerate}
 			\pause
