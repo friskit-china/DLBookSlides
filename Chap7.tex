@@ -983,7 +983,7 @@
 			\pause
 			\item The idea is to train several different models separately, then have all of the models vote on the output for test examples.
 			\pause
-			\item Thi is an example of a general strategy in machine learning called \emph{model averaging}.
+			\item This is an example of a general strategy in machine learning called \emph{model averaging}.
 			\pause
 			\item Techniques employing this strategy are known as \emph{ensemble methods}.
 		\end{itemize}
@@ -1028,6 +1028,8 @@
 			\item Each dataset has the same number of examples as the original dataset, but each dataset is constructed by sampling with replacement from the origin dataset.
 			\pause
 			\item This means that, with high probability, each dataset is missing some of the examples from the original dataset and also contains several duplicate examples.
+			\pause
+			\item Model $i$ is then trained on dataset $i$.
 		\end{itemize}
 	\end{frame}
 	
@@ -1070,6 +1072,7 @@
 	
 	\begin{frame}{Dropout}
 		\begin{itemize}
+			\pause
 			\item Dropout (\citep{srivastava2014dropout}) provides a computationally inexpensive but powerful method of regularizing a broad family of models.
 			\pause
 			\item Dropout can be thought of as a method of making bagging practical for ensembles of very many large neural networks.
@@ -1354,7 +1357,8 @@
 	
 	\begin{frame}{Adversarial Training}
 		\begin{itemize}
-			\item Im many cases, neural networks have begun to reach human performance when evaluated on an i.i.d. test set. It is natural there fore to wonder whether these models have obtained a true human-level understanding of these tasks.
+			\pause
+			\item Im many cases, neural networks have begun to reach human performance when evaluated on an i.i.d. test set. It is natural therefore to wonder whether these models have obtained a true human-level understanding of these tasks.
 			\pause
 			\item In order to probe the level of understanding a network has of the underlying task, we can search for examples that the models misclassifies.
 			\pause
@@ -1372,7 +1376,7 @@
 	
 	\begin{frame}{Adversarial Training}
 		\begin{itemize}
-			\item Adversarial examples are interesting in the context of regularization because on can reduce the error rate on the original i.i.d. test set via \emph{adversarial training}-- training on adversarially perturbed examples from from the training set.
+			\item Adversarial examples are interesting in the context of regularization because one can reduce the error rate on the original i.i.d. test set via \emph{adversarial training}-- training on adversarially perturbed examples from from the training set.
 			\pause
 			\item \citet{goodfellow2013multi} showed that one of the primary causes of these adversarial examples is excessive linearity.
 			\pause
@@ -1394,6 +1398,34 @@
 		\end{itemize}
 	\end{frame}
 	
+	\begin{frame}{Adversarial Training}
+		\begin{itemize}
+			\item Adversarial training helps to illustrate the power of using a large function family in combination with aggressive regularization.
+			\pause
+			\item Purely linear models, like logistic regression, are not able to resist adversarial examples because they are forced to be linear.
+			\pause
+			\item Neural networks are able to represent functions that can range from nearly linear to nearly locally constant and thus have the flexibility to capture linear trends in the training data while still learning to resist local perturbation.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Adversarial Training}
+		\begin{itemize}
+			\item Adversarial examples also provide a means of accomplishing semi-supervised learning.
+			\pause
+			\item At a point $\bm{x}$ that is not associated with a label in the dataset, the model itself assigns some label $\hat{y}$.
+			\pause
+			\item The model's label $\hat{y}$ may not be the true label, but if the model is high quality, then $\hat{y}$ has a high probability of providing the true label.
+			\pause
+			\item We can seek an adversarial example $\bm{x}'$ that causes the classifier to output a label $y'$ with $y'\neq\hat{y}$.
+			\pause
+			\item The classifier may then be trained to assign the same label to $\bm{x}$ and $\bm{x}'$.
+			\pause
+			\item Adversarial examples generated using not the true label but a label provided by a trained model are called \emph{virtual adversarial examples}.
+			\pause
+			\item This encourages the classifier to learn a function that is robust to small changes.
+		\end{itemize}
+	\end{frame}
+	
 	\begin{frame}{Tangent Distance, Tangent Prop, and Manifold Tangent Classifier}
 		\begin{itemize}
 			\item The \emph{tangent prop} algorithm (\citet{simard1991tangent}) trains a neural net classifier with an extra penalty to make each output $f(\bm{x})$ of the neural net locally invariant to known factors of variation.
@@ -1402,6 +1434,7 @@
 			$$\Omega(f)=\sum_i\left(\left(\nabla_{\bm{x}}f(\bm{x})\right)^2\bm{v}^{(i)}\right)^2$$
 		\end{itemize}
 	\end{frame}
+	
 	
 	\begin{frame}[allowframebreaks]{References}
 		\bibliography{Chap7}
